@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="PF" file="pf.bru" errors="0" failures="0" skipped="0" tests="6" timestamp="2026-09-20T22:48:13.038" hostname="5d918868722d" time="2.627">
+    <testcase name="res.status eq 200" status="pass" classname="pf" time="0.438"/>
+    <testcase name="res.body.itens isArray" status="pass" classname="pf" time="0.438"/>
+    <testcase name="res.body.id_nota_fiscal isDefined" status="pass" classname="pf" time="0.438"/>
+    <testcase name="responde um unico item do pedido" status="pass" classname="pf" time="0.438"/>
+    <testcase name="PF abaixo de 500 tem tributo zero" status="pass" classname="pf" time="0.438"/>
+    <testcase name="frete Sudeste aplica fator 1.048" status="pass" classname="pf" time="0.438"/>
+  </testsuite>
+  <testsuite name="PF segunda chamada" file="pf-segunda-chamada.bru" errors="0" failures="0" skipped="0" tests="5" timestamp="2026-09-20T22:48:13.038" hostname="5d918868722d" time="1.733">
+    <testcase name="res.status eq 200" status="pass" classname="pf-segunda-chamada" time="0.347"/>
+    <testcase name="res.body.itens isArray" status="pass" classname="pf-segunda-chamada" time="0.347"/>
+    <testcase name="res.body.id_nota_fiscal isDefined" status="pass" classname="pf-segunda-chamada" time="0.347"/>
+    <testcase name="segunda chamada nao acumula itens da primeira" status="pass" classname="pf-segunda-chamada" time="0.347"/>
+    <testcase name="tributo continua zero" status="pass" classname="pf-segunda-chamada" time="0.347"/>
+  </testsuite>
+  <testsuite name="PJ Simples Nacional" file="pj-simples.bru" errors="0" failures="0" skipped="0" tests="6" timestamp="2026-09-20T22:48:13.038" hostname="5d918868722d" time="1.741">
+    <testcase name="res.status eq 200" status="pass" classname="pj-simples" time="0.290"/>
+    <testcase name="res.body.itens isArray" status="pass" classname="pj-simples" time="0.290"/>
+    <testcase name="res.body.id_nota_fiscal isDefined" status="pass" classname="pj-simples" time="0.290"/>
+    <testcase name="responde apenas o item deste pedido" status="pass" classname="pj-simples" time="0.290"/>
+    <testcase name="Simples Nacional acima de 5000 usa aliquota 19%" status="pass" classname="pj-simples" time="0.290"/>
+    <testcase name="frete Sudeste aplica fator 1.048" status="pass" classname="pj-simples" time="0.290"/>
+  </testsuite>
+  <testsuite name="Pedido com 6 itens" file="pedido-6-itens.bru" errors="0" failures="0" skipped="0" tests="6" timestamp="2026-09-20T22:48:13.038" hostname="5d918868722d" time="6.713">
+    <testcase name="res.status eq 200" status="pass" classname="pedido-6-itens" time="1.119"/>
+    <testcase name="res.body.itens isArray" status="pass" classname="pedido-6-itens" time="1.119"/>
+    <testcase name="res.body.id_nota_fiscal isDefined" status="pass" classname="pedido-6-itens" time="1.119"/>
+    <testcase name="responde exatamente 6 itens" status="pass" classname="pedido-6-itens" time="1.119"/>
+    <testcase name="PF entre 500 e 2000 usa aliquota 12% no unitario" status="pass" classname="pedido-6-itens" time="1.119"/>
+    <testcase name="frete Sudeste aplica fator 1.048" status="pass" classname="pedido-6-itens" time="1.119"/>
+  </testsuite>
+</testsuites>
