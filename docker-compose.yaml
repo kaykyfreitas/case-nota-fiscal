@@ -1,0 +1,9 @@
+services:
+  gerador-nf:
+    build: .
+    ports:
+      - "8080:8080"
+    mem_limit: 512m
+    cpus: "0.50"
+    environment:
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0"
