@@ -1,11 +1,11 @@
-FROM eclipse-temurin:11-jdk-jammy AS build
+FROM eclipse-temurin:21-jdk-jammy AS build
 WORKDIR /workspace
 COPY mvnw pom.xml ./
 COPY .mvn .mvn
 COPY src src
 RUN chmod +x mvnw && ./mvnw -B -DskipTests package
 
-FROM eclipse-temurin:11-jre-jammy
+FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 RUN groupadd --system app && useradd --system --gid app --no-create-home app
 COPY --from=build /workspace/target/geradornotafiscal-0.0.1-SNAPSHOT.jar app.jar
