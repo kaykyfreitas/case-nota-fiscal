@@ -1,0 +1,67 @@
+meta {
+  name: PJ Simples Nacional
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/api/pedido/gerarNotaFiscal
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+assert {
+  res.status: eq 200
+  res.body.itens: isArray
+  res.body.id_nota_fiscal: isDefined
+}
+
+tests {
+  test("responde apenas o item deste pedido", function() {
+    const body = res.getBody();
+    expect(body.itens).to.have.lengthOf(1);
+    expect(body.itens[0].descricao).to.equal("Monitor LCD SAMSUNG");
+  });
+
+  test("Simples Nacional acima de 5000 usa aliquota 19%", function() {
+    const body = res.getBody();
+    expect(body.valor_total_itens).to.equal(5840);
+    expect(body.itens[0].valor_tributo_item).to.be.closeTo(138.7, 0.001);
+  });
+
+  test("frete Sudeste aplica fator 1.048", function() {
+    const body = res.getBody();
+    expect(body.valor_frete).to.be.closeTo(75.456, 0.001);
+  });
+}
+
+body:json {
+  {
+    "id_pedido": 1,
+    "data": "2022-05-01",
+    "valor_total_itens": 5840.0,
+    "valor_frete": 72.0,
+    "itens": [
+      {
+        "id_item": 1,
+        "descricao": "Monitor LCD SAMSUNG",
+        "valor_unitario": 730,
+        "quantidade": 8
+      }
+    ],
+    "destinatario": {
+      "nome": "John Doe",
+      "tipo_pessoa": "JURIDICA",
+      "regime_tributacao": "SIMPLES_NACIONAL",
+      "documentos": [{ "tipo": "CNPJ", "numero": "49695613000180" }],
+      "enderecos": [{
+        "finalidade": "ENTREGA",
+        "regiao": "SUDESTE"
+      }]
+    }
+  }
+}

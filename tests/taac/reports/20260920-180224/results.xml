@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="PF" file="pf.bru" errors="0" failures="0" skipped="0" tests="0" timestamp="2026-09-20T21:02:38.575" hostname="9157de65189a" time="1.988"/>
+  <testsuite name="PJ Simples Nacional" file="pj-simples.bru" errors="0" failures="0" skipped="0" tests="0" timestamp="2026-09-20T21:02:38.575" hostname="9157de65189a" time="1.499"/>
+  <testsuite name="Pedido com 6 itens" file="pedido-6-itens.bru" errors="0" failures="0" skipped="0" tests="0" timestamp="2026-09-20T21:02:38.575" hostname="9157de65189a" time="6.494"/>
+</testsuites>

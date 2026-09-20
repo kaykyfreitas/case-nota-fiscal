@@ -1,0 +1,63 @@
+meta {
+  name: Pedido com 6 itens
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/api/pedido/gerarNotaFiscal
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+assert {
+  res.status: eq 200
+  res.body.itens: isArray
+  res.body.id_nota_fiscal: isDefined
+}
+
+tests {
+  test("responde exatamente 6 itens", function() {
+    const body = res.getBody();
+    expect(body.itens).to.have.lengthOf(6);
+  });
+
+  test("PF entre 500 e 2000 usa aliquota 12% no unitario", function() {
+    const body = res.getBody();
+    expect(body.valor_total_itens).to.equal(600);
+    body.itens.forEach(function(item) {
+      expect(item.valor_tributo_item).to.be.closeTo(12, 0.001);
+    });
+  });
+
+  test("frete Sudeste aplica fator 1.048", function() {
+    const body = res.getBody();
+    expect(body.valor_frete).to.be.closeTo(10.48, 0.001);
+  });
+}
+
+body:json {
+  {
+    "id_pedido": 2,
+    "data": "2022-05-01",
+    "valor_total_itens": 600.0,
+    "valor_frete": 10.0,
+    "itens": [
+      { "id_item": 1, "descricao": "Item 1", "valor_unitario": 100, "quantidade": 1 },
+      { "id_item": 2, "descricao": "Item 2", "valor_unitario": 100, "quantidade": 1 },
+      { "id_item": 3, "descricao": "Item 3", "valor_unitario": 100, "quantidade": 1 },
+      { "id_item": 4, "descricao": "Item 4", "valor_unitario": 100, "quantidade": 1 },
+      { "id_item": 5, "descricao": "Item 5", "valor_unitario": 100, "quantidade": 1 },
+      { "id_item": 6, "descricao": "Item 6", "valor_unitario": 100, "quantidade": 1 }
+    ],
+    "destinatario": {
+      "nome": "John Doe",
+      "tipo_pessoa": "FISICA",
+      "enderecos": [{ "finalidade": "ENTREGA", "regiao": "SUDESTE" }]
+    }
+  }
+}

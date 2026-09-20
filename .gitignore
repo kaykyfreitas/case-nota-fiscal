@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Relatorios TAAC (Bruno) ###
+#tests/taac/reports/

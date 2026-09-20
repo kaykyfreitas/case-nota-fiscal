@@ -1,0 +1,73 @@
+meta {
+  name: PF
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/api/pedido/gerarNotaFiscal
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+assert {
+  res.status: eq 200
+  res.body.itens: isArray
+  res.body.id_nota_fiscal: isDefined
+}
+
+tests {
+  test("responde um unico item do pedido", function() {
+    const body = res.getBody();
+    expect(body.itens).to.have.lengthOf(1);
+    expect(body.itens[0].descricao).to.equal("Teclado USB");
+  });
+
+  test("PF abaixo de 500 tem tributo zero", function() {
+    const body = res.getBody();
+    expect(body.valor_total_itens).to.equal(100);
+    expect(body.itens[0].valor_tributo_item).to.equal(0);
+  });
+
+  test("frete Sudeste aplica fator 1.048", function() {
+    const body = res.getBody();
+    expect(body.valor_frete).to.be.closeTo(10.48, 0.001);
+  });
+}
+
+body:json {
+  {
+    "id_pedido": 1,
+    "data": "2022-05-01",
+    "valor_total_itens": 100.0,
+    "valor_frete": 10.0,
+    "itens": [
+      {
+        "id_item": 1,
+        "descricao": "Teclado USB",
+        "valor_unitario": 50,
+        "quantidade": 2
+      }
+    ],
+    "destinatario": {
+      "nome": "John Doe",
+      "tipo_pessoa": "FISICA",
+      "documentos": [{ "tipo": "CPF", "numero": "88740347095" }],
+      "enderecos": [{
+        "logradouro": "Av do estado",
+        "numero": "5533",
+        "bairro": "Mooca",
+        "cidade": "Sao Paulo",
+        "estado": "SP",
+        "pais": "Brasil",
+        "cep": "03105003",
+        "finalidade": "ENTREGA",
+        "regiao": "SUDESTE"
+      }]
+    }
+  }
+}
