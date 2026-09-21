@@ -12,6 +12,7 @@ public class RegistroServiceImpl implements RegistroService {
             //Simula o registro da nota fiscal
             Thread.sleep(500);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }

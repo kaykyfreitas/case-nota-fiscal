@@ -19,6 +19,7 @@ public class EntregaServiceImpl implements EntregaService {
                 Thread.sleep(150);
                 this.entregaIntegrationPort.criarAgendamentoEntrega(notaFiscal);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new RuntimeException(e);
             }
 

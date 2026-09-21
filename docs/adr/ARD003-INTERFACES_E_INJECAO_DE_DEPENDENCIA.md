@@ -1,4 +1,4 @@
-# ADR003 — Interfaces e injeção de dependência nas laterais
+# ADR003 — Interfaces e injeção de dependência nas integrações
 
 ## Contexto
 
@@ -6,14 +6,14 @@ O orquestrador legado instanciava estoque, registro, entrega, financeiro e a cal
 
 ## Decisão
 
-Expor cada lateral como interface (`EstoqueService`, `RegistroService`, `EntregaService`, `FinanceiroService`) e implementar beans Spring injetados no `GeradorNotaFiscalServiceImpl`.
+Expor cada integração como interface (`EstoqueService`, `RegistroService`, `EntregaService`, `FinanceiroService`) e implementar beans Spring injetados no `GeradorNotaFiscalServiceImpl`.
 
-A entrega, que combina espera de domínio (150 ms) e I/O simulado (200 ms), ganha `EntregaIntegrationPort` + `EntregaIntegrationAdapter`. As outras laterais, hoje só `sleep`, permanecem no `*ServiceImpl` até existir sistema externo distinto.
+A entrega, que combina espera de domínio (150 ms) e I/O simulado (200 ms), ganha `EntregaIntegrationPort` + `EntregaIntegrationAdapter`. As outras integrações, hoje só `sleep`, permanecem no `*ServiceImpl` até existir sistema externo distinto.
 
 O caso de uso (`GeradorNotaFiscalService`) é a porta de entrada: o adapter HTTP **usa** a interface, não a implementa.
 
 ## Consequências
 
-- Testes do gerador mockam laterais e não disparam `sleep`.
+- Testes do gerador mockam as integrações e não disparam `sleep`.
 - O orquestrador deixa de conhecer implementação de integração.
 - Há assimetria consciente: só entrega tem Port/Adapter, mas isso pode facilmente extendido para os demais.

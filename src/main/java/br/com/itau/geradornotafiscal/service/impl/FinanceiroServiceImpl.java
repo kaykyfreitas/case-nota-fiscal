@@ -12,6 +12,7 @@ public class FinanceiroServiceImpl implements FinanceiroService {
             //Simula o envio da nota fiscal para o contas a receber
             Thread.sleep(250);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }

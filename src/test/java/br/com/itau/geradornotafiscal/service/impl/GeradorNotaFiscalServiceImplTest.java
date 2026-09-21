@@ -16,9 +16,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +56,7 @@ class GeradorNotaFiscalServiceImplTest {
     private FinanceiroService financeiroService;
 
     @Test
-    void deveMontarNotaComAliquotaFreteEDispararLaterais() {
+    void deveMontarNotaComAliquotaFreteEDispararIntegracoes() {
         Pedido pedido = new Pedido();
         pedido.setValorTotalItens(400);
         pedido.setDestinatario(new Destinatario());
@@ -67,5 +76,39 @@ class GeradorNotaFiscalServiceImplTest {
         verify(registroService).registrarNotaFiscal(notaFiscal);
         verify(entregaService).agendarEntrega(notaFiscal);
         verify(financeiroService).enviarNotaFiscalParaContasReceber(notaFiscal);
+    }
+
+    @Test
+    void deveCancelarIntegracoesPendentesQuandoUmaFalhar() {
+        Pedido pedido = new Pedido();
+        pedido.setValorTotalItens(400);
+        pedido.setDestinatario(new Destinatario());
+
+        CountDownLatch registroEmAndamento = new CountDownLatch(1);
+        AtomicBoolean registroInterrompido = new AtomicBoolean();
+
+        when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
+        when(calculoFrete.calcular(pedido)).thenReturn(0.0);
+        doAnswer(invocation -> {
+            assertTrue(registroEmAndamento.await(1, TimeUnit.SECONDS));
+            throw new RuntimeException("falha no estoque");
+        }).when(estoqueService).enviarNotaFiscalParaBaixaEstoque(any());
+        doAnswer(invocation -> {
+            registroEmAndamento.countDown();
+            try {
+                Thread.sleep(5_000);
+                return null;
+            } catch (InterruptedException e) {
+                registroInterrompido.set(true);
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
+        }).when(registroService).registrarNotaFiscal(any());
+
+        RuntimeException erro = assertTimeoutPreemptively(Duration.ofSeconds(2), () ->
+                assertThrows(RuntimeException.class, () -> geradorNotaFiscalService.gerarNotaFiscal(pedido)));
+
+        assertEquals("falha no estoque", erro.getMessage());
+        assertTrue(registroInterrompido.get());
     }
 }

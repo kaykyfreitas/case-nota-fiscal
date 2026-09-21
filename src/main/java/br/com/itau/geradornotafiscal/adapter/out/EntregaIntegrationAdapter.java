@@ -12,6 +12,7 @@ public class EntregaIntegrationAdapter implements EntregaIntegrationPort {
             //Simula o agendamento da entrega
             Thread.sleep(200);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }

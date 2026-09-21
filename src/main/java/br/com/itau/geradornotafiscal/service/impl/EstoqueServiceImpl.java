@@ -11,6 +11,7 @@ public class EstoqueServiceImpl implements EstoqueService {
             //Simula envio de nota fiscal para baixa de estoque
             Thread.sleep(380);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }
