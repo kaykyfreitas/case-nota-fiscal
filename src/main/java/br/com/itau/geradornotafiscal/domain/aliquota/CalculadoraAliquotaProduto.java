@@ -1,10 +1,13 @@
-package br.com.itau.geradornotafiscal.service;
+package br.com.itau.geradornotafiscal.domain.aliquota;
 
 import br.com.itau.geradornotafiscal.model.Item;
 import br.com.itau.geradornotafiscal.model.ItemNotaFiscal;
+import org.springframework.stereotype.Component;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Component
 public class CalculadoraAliquotaProduto {
 
     public List<ItemNotaFiscal> calcularAliquota(List<Item> items, double aliquotaPercentual) {
@@ -23,6 +26,3 @@ public class CalculadoraAliquotaProduto {
         return itemNotaFiscalList;
     }
 }
-
-
-
