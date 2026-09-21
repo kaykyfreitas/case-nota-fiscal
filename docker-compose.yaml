@@ -6,4 +6,5 @@ services:
     mem_limit: 512m
     cpus: "0.50"
     environment:
-      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0"
+      TZ: America/Sao_Paulo
+      JAVA_OPTS: "-XX:MaxRAMPercentage=75.0 -Duser.timezone=America/Sao_Paulo"

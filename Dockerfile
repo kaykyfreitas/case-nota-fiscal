@@ -10,6 +10,7 @@ WORKDIR /app
 RUN groupadd --system app && useradd --system --gid app --no-create-home app
 COPY --from=build /workspace/target/geradornotafiscal-0.0.1-SNAPSHOT.jar app.jar
 USER app
-ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0"
+ENV TZ=America/Sao_Paulo
+ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0 -Duser.timezone=America/Sao_Paulo"
 EXPOSE 8080
 ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
