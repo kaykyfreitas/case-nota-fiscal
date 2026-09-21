@@ -1,5 +1,6 @@
 package br.com.itau.geradornotafiscal.domain.frete;
 
+import br.com.itau.geradornotafiscal.domain.exception.PedidoInvalidoException;
 import br.com.itau.geradornotafiscal.model.Endereco;
 import br.com.itau.geradornotafiscal.model.Finalidade;
 import br.com.itau.geradornotafiscal.model.Pedido;
@@ -7,28 +8,33 @@ import br.com.itau.geradornotafiscal.model.Regiao;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 
 @Service
 public class CalculoFreteService implements CalculoFrete {
 
     @Override
     public double calcular(Pedido pedido) {
-        return resolverRegiaoEntrega(pedido)
-                .map(regiao -> pedido.getValorFrete() * regiao.getFatorFrete())
-                .orElse(0.0);
+        Regiao regiao = resolverRegiaoEntrega(pedido);
+        return pedido.getValorFrete() * regiao.getFatorFrete();
     }
 
-    private Optional<Regiao> resolverRegiaoEntrega(Pedido pedido) {
+    private Regiao resolverRegiaoEntrega(Pedido pedido) {
+        if (pedido == null || pedido.getDestinatario() == null) {
+            throw new PedidoInvalidoException("Pedido sem destinatario");
+        }
+
         List<Endereco> enderecos = pedido.getDestinatario().getEnderecos();
-        if (enderecos == null) {
-            return Optional.empty();
+        if (enderecos == null || enderecos.isEmpty()) {
+            throw new PedidoInvalidoException("Pedido sem endereco de entrega");
         }
 
         return enderecos.stream()
                 .filter(endereco -> endereco.getFinalidade() == Finalidade.ENTREGA
                         || endereco.getFinalidade() == Finalidade.COBRANCA_ENTREGA)
                 .map(Endereco::getRegiao)
-                .findFirst();
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElseThrow(() -> new PedidoInvalidoException("Pedido sem endereco de entrega"));
     }
 }

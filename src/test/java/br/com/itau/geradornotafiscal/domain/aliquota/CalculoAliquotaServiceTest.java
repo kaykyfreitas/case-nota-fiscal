@@ -4,6 +4,8 @@ import br.com.itau.geradornotafiscal.domain.aliquota.strategy.LucroPresumidoAliq
 import br.com.itau.geradornotafiscal.domain.aliquota.strategy.LucroRealAliquotaStrategy;
 import br.com.itau.geradornotafiscal.domain.aliquota.strategy.PessoaFisicaAliquotaStrategy;
 import br.com.itau.geradornotafiscal.domain.aliquota.strategy.SimplesNacionalAliquotaStrategy;
+import br.com.itau.geradornotafiscal.domain.exception.PedidoInvalidoException;
+import br.com.itau.geradornotafiscal.domain.exception.RegimeTributacaoNaoSuportadoException;
 import br.com.itau.geradornotafiscal.model.Destinatario;
 import br.com.itau.geradornotafiscal.model.Item;
 import br.com.itau.geradornotafiscal.model.ItemNotaFiscal;
@@ -16,7 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CalculoAliquotaServiceTest {
 
@@ -56,18 +58,31 @@ class CalculoAliquotaServiceTest {
     }
 
     @Test
-    void deveDevolverListaVaziaQuandoRegimeForOutros() {
+    void deveFalharQuandoRegimeForOutros() {
         Pedido pedido = pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.OUTROS, 6000, item(1000, 6));
 
-        List<ItemNotaFiscal> itens = calculoAliquotaService.calcular(pedido);
-
-        assertTrue(itens.isEmpty());
+        assertThrows(RegimeTributacaoNaoSuportadoException.class, () -> calculoAliquotaService.calcular(pedido));
     }
 
-    private Pedido pedido(TipoPessoa tipoPessoa, RegimeTributacaoPJ regime, double valorTotal, Item item) {
+    @Test
+    void deveFalharQuandoPedidoNaoTiverDestinatario() {
+        Pedido pedido = new Pedido();
+        pedido.setItens(List.of(item(100, 1)));
+
+        assertThrows(PedidoInvalidoException.class, () -> calculoAliquotaService.calcular(pedido));
+    }
+
+    @Test
+    void deveFalharQuandoPedidoNaoTiverItens() {
+        Pedido pedido = pedido(TipoPessoa.FISICA, null, 400);
+
+        assertThrows(PedidoInvalidoException.class, () -> calculoAliquotaService.calcular(pedido));
+    }
+
+    private Pedido pedido(TipoPessoa tipoPessoa, RegimeTributacaoPJ regime, double valorTotal, Item... itens) {
         Pedido pedido = new Pedido();
         pedido.setValorTotalItens(valorTotal);
-        pedido.setItens(List.of(item));
+        pedido.setItens(List.of(itens));
 
         Destinatario destinatario = new Destinatario();
         destinatario.setTipoPessoa(tipoPessoa);

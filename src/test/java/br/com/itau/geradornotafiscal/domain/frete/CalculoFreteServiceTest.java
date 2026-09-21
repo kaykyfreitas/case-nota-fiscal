@@ -1,5 +1,6 @@
 package br.com.itau.geradornotafiscal.domain.frete;
 
+import br.com.itau.geradornotafiscal.domain.exception.PedidoInvalidoException;
 import br.com.itau.geradornotafiscal.model.Destinatario;
 import br.com.itau.geradornotafiscal.model.Endereco;
 import br.com.itau.geradornotafiscal.model.Finalidade;
@@ -12,6 +13,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CalculoFreteServiceTest {
 
@@ -39,10 +41,18 @@ class CalculoFreteServiceTest {
     }
 
     @Test
-    void deveDevolverZeroQuandoSoHouverEnderecoDeCobranca() {
+    void deveFalharQuandoSoHouverEnderecoDeCobranca() {
         Pedido pedido = pedido(100, endereco(Finalidade.COBRANCA, Regiao.SUDESTE));
 
-        assertEquals(0, calculoFreteService.calcular(pedido));
+        assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
+    }
+
+    @Test
+    void deveFalharQuandoPedidoNaoTiverDestinatario() {
+        Pedido pedido = new Pedido();
+        pedido.setValorFrete(100);
+
+        assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
     }
 
     @Test
