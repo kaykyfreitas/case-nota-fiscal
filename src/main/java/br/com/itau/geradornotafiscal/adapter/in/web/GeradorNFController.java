@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/pedido")
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class GeradorNFController {
     private final GeradorNotaFiscalService notaFiscalService;
 
     @PostMapping("/gerarNotaFiscal")
-    public ResponseEntity<NotaFiscal> gerarNotaFiscal(@RequestBody Pedido pedido) {
+    public ResponseEntity<NotaFiscal> gerarNotaFiscal(@Valid @RequestBody Pedido pedido) {
         return ResponseEntity.ok(notaFiscalService.gerarNotaFiscal(pedido));
     }
 }
