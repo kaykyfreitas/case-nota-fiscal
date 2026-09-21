@@ -1,8 +1,8 @@
 package br.com.itau.geradornotafiscal.service.impl;
 
 import br.com.itau.geradornotafiscal.model.*;
-import br.com.itau.geradornotafiscal.service.CalculadoraAliquotaProduto;
-import br.com.itau.geradornotafiscal.service.GeradorNotaFiscalService;
+import br.com.itau.geradornotafiscal.service.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,7 +11,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class GeradorNotaFiscalServiceImpl implements GeradorNotaFiscalService{
+@RequiredArgsConstructor
+public class GeradorNotaFiscalServiceImpl implements GeradorNotaFiscalService {
+
+	private final EntregaService entregaService;
+	private final EstoqueService estoqueService;
+	private final RegistroService registroService;
+	private final FinanceiroService financeiroService;
+
 	@Override
 	public NotaFiscal gerarNotaFiscal(Pedido pedido) {
 
@@ -120,10 +127,10 @@ public class GeradorNotaFiscalServiceImpl implements GeradorNotaFiscalService{
 				.destinatario(pedido.getDestinatario())
 				.build();
 
-		new EstoqueService().enviarNotaFiscalParaBaixaEstoque(notaFiscal);
-		new RegistroService().registrarNotaFiscal(notaFiscal);
-		new EntregaService().agendarEntrega(notaFiscal);
-		new FinanceiroService().enviarNotaFiscalParaContasReceber(notaFiscal);
+		this.estoqueService.enviarNotaFiscalParaBaixaEstoque(notaFiscal);
+		this.registroService.registrarNotaFiscal(notaFiscal);
+		this.entregaService.agendarEntrega(notaFiscal);
+		this.financeiroService.enviarNotaFiscalParaContasReceber(notaFiscal);
 
 		return notaFiscal;
 	}

@@ -1,7 +1,7 @@
 package br.com.itau.geradornotafiscal.service.impl;
 
 import br.com.itau.geradornotafiscal.model.*;
-import br.com.itau.geradornotafiscal.service.CalculadoraAliquotaProduto;
+import br.com.itau.geradornotafiscal.service.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -20,6 +20,18 @@ public class GeradorNotaFiscalServiceImplTest {
 
     @InjectMocks
     private GeradorNotaFiscalServiceImpl geradorNotaFiscalService;
+
+    @Mock
+    private EntregaService entregaService;
+
+    @Mock
+    private EstoqueService estoqueService;
+
+    @Mock
+    private RegistroService registroService;
+
+    @Mock
+    private FinanceiroService financeiroService;
 
     @Mock
     private CalculadoraAliquotaProduto calculadoraAliquotaProduto;
