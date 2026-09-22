@@ -20,5 +20,12 @@ export default function () {
         return false;
       }
     },
+    "tributo da linha": (r) => {
+      try {
+        return r.json("itens.0.valor_tributo_item") === 0;
+      } catch (e) {
+        return false;
+      }
+    },
   });
 }

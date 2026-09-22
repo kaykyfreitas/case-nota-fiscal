@@ -56,7 +56,7 @@ class CalculoAliquotaServiceTest {
         List<ItemNotaFiscal> itens = calculoAliquotaService.calcular(pedido);
 
         assertEquals(1, itens.size());
-        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("200.00");
+        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("1200.00");
     }
 
     @Test

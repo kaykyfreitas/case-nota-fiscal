@@ -10,7 +10,7 @@ PF e os regimes PJ (Simples, Lucro Real, Lucro Presumido) têm faixas e percentu
 
 - `CalculoAliquota` / `CalculoAliquotaService`: fachada que o gerador chama (`calcular(Pedido)`).
 - `AliquotaStrategy` por política (PF, Simples Nacional, Lucro Real, Lucro Presumido).
-- `CalculadoraAliquotaProduto`: mapeamento item → tributo, compartilhada.
+- `CalculadoraAliquotaProduto`: tributo da linha `valorUnitario * quantidade * aliquota`, 2 casas `HALF_UP`.
 
 Nenhuma strategy para `OUTROS` (e equivalentes sem regra): o seletor lança `RegimeTributacaoNaoSuportadoException`.
 
@@ -19,3 +19,4 @@ Nenhuma strategy para `OUTROS` (e equivalentes sem regra): o seletor lança `Reg
 - Nova faixa ou regime vira classe nova, sem reabrir o gerador.
 - Testes de faixa ficam nas strategies, o gerador mocka a fachada.
 - Percentuais continuam no código; se um dia forem a um catálogo/banco, a fachada permanece e as strategies passam a ler uma porta.
+- O legado aplicava alíquota só no unitário; `quantidade` ia para a NF sem entrar na conta. A linha agora fecha `unitário × quantidade × alíquota`. `valor_total_itens` continua subtotal da mercadoria — tributo não entra nesse campo.

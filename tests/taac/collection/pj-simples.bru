@@ -30,7 +30,7 @@ tests {
   test("Simples Nacional acima de 5000 usa aliquota 19%", function() {
     const body = res.getBody();
     expect(body.valor_total_itens).to.equal(5840);
-    expect(body.itens[0].valor_tributo_item).to.equal(138.7);
+    expect(body.itens[0].valor_tributo_item).to.equal(1109.6);
   });
 
   test("frete Sudeste aplica fator 1.048", function() {

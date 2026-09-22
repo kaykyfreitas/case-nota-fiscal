@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CalculadoraAliquotaProdutoTest {
 
     @Test
-    void deveAplicarAliquotaNoValorUnitarioDeCadaItem() {
+    void deveAplicarAliquotaNoValorDaLinha() {
         Item item = new Item();
         item.setIdItem("1");
         item.setDescricao("Produto");
@@ -25,19 +25,19 @@ class CalculadoraAliquotaProdutoTest {
 
         assertEquals(1, itens.size());
         assertEquals("1", itens.get(0).getIdItem());
-        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("12.00");
+        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("24.00");
         assertEquals(2, itens.get(0).getQuantidade());
     }
 
     @Test
-    void deveArredondarTributoComDuasCasasHalfUp() {
+    void deveArredondarTributoDaLinhaComDuasCasasHalfUp() {
         Item item = new Item();
         item.setValorUnitario(new BigDecimal("10.15"));
-        item.setQuantidade(1);
+        item.setQuantidade(2);
 
         List<ItemNotaFiscal> itens = new CalculadoraAliquotaProduto()
                 .calcularAliquota(List.of(item), new BigDecimal("0.12"));
 
-        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("1.22");
+        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("2.44");
     }
 }

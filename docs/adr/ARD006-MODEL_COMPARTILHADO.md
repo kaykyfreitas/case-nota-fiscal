@@ -1,4 +1,4 @@
-# ADR006 — Model compartilhado na raiz do pacote21
+# ADR006 — Model compartilhado na raiz do pacote
 
 ## Contexto
 

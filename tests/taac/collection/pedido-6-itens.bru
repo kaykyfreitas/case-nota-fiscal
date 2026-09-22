@@ -26,7 +26,7 @@ tests {
     expect(body.itens).to.have.lengthOf(6);
   });
 
-  test("PF entre 500 e 2000 usa aliquota 12% no unitario", function() {
+  test("PF entre 500 e 2000 usa aliquota 12% na linha", function() {
     const body = res.getBody();
     expect(body.valor_total_itens).to.equal(600);
     body.itens.forEach(function(item) {

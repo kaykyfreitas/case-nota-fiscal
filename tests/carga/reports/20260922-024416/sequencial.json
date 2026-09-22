@@ -1,0 +1,141 @@
+{
+    "metrics": {
+        "iteration_duration": {
+            "p(95)": 510.49186095,
+            "avg": 507.54265187500005,
+            "min": 505.950098,
+            "med": 507.0872995,
+            "max": 511.832187,
+            "p(90)": 509.1515349
+        },
+        "http_req_duration{expected_response:true}": {
+            "p(90)": 507.5681058,
+            "p(95)": 507.6832159,
+            "avg": 506.68670387500003,
+            "min": 505.588247,
+            "med": 506.730233,
+            "max": 507.798326
+        },
+        "http_req_tls_handshaking": {
+            "max": 0,
+            "p(90)": 0,
+            "p(95)": 0,
+            "avg": 0,
+            "min": 0,
+            "med": 0
+        },
+        "checks": {
+            "passes": 24,
+            "fails": 0,
+            "value": 1
+        },
+        "http_req_blocked": {
+            "p(90)": 0.9553754999999995,
+            "p(95)": 2.052623749999998,
+            "avg": 0.40512699999999996,
+            "min": 0.010616,
+            "med": 0.013025499999999999,
+            "max": 3.149872
+        },
+        "http_req_sending": {
+            "max": 0.250174,
+            "p(90)": 0.14315519999999998,
+            "p(95)": 0.19666459999999994,
+            "avg": 0.082728,
+            "min": 0.037156,
+            "med": 0.060552999999999996
+        },
+        "http_req_receiving": {
+            "med": 0.5464435000000001,
+            "max": 1.441817,
+            "p(90)": 1.0240087,
+            "p(95)": 1.2329128499999995,
+            "avg": 0.6452871250000001,
+            "min": 0.371559
+        },
+        "http_req_waiting": {
+            "med": 505.977162,
+            "max": 507.003524,
+            "p(90)": 506.65841420000004,
+            "p(95)": 506.8309691,
+            "avg": 505.95868874999996,
+            "min": 505.151176
+        },
+        "http_req_failed": {
+            "passes": 0,
+            "fails": 8,
+            "value": 0
+        },
+        "data_sent": {
+            "count": 3928,
+            "rate": 967.2380601210967
+        },
+        "iterations": {
+            "count": 8,
+            "rate": 1.969934949330136
+        },
+        "http_reqs": {
+            "rate": 1.969934949330136,
+            "count": 8
+        },
+        "vus": {
+            "value": 1,
+            "min": 1,
+            "max": 1
+        },
+        "vus_max": {
+            "value": 1,
+            "min": 1,
+            "max": 1
+        },
+        "http_req_duration": {
+            "med": 506.730233,
+            "max": 507.798326,
+            "p(90)": 507.5681058,
+            "p(95)": 507.6832159,
+            "avg": 506.68670387500003,
+            "min": 505.588247
+        },
+        "http_req_connecting": {
+            "p(90)": 0.11448479999999994,
+            "p(95)": 0.2480503999999998,
+            "avg": 0.047702,
+            "min": 0,
+            "med": 0,
+            "max": 0.381616
+        },
+        "data_received": {
+            "count": 5416,
+            "rate": 1333.645960696502
+        }
+    },
+    "root_group": {
+        "name": "",
+        "path": "",
+        "id": "d41d8cd98f00b204e9800998ecf8427e",
+        "groups": {},
+        "checks": {
+                "status 200": {
+                    "name": "status 200",
+                    "path": "::status 200",
+                    "id": "fad9fa412b86fcb03bee97c80dcd61f1",
+                    "passes": 8,
+                    "fails": 0
+                },
+                "nao acumula itens": {
+                    "name": "nao acumula itens",
+                    "path": "::nao acumula itens",
+                    "id": "74515bec44307078fd5c82f6384275b1",
+                    "passes": 8,
+                    "fails": 0
+                },
+                "tributo da linha": {
+                    "fails": 0,
+                    "name": "tributo da linha",
+                    "path": "::tributo da linha",
+                    "id": "f95fc239ba1b8fe851d3c51a7d4b4e9d",
+                    "passes": 8
+                }
+            }
+    }
+}

@@ -2,7 +2,7 @@
 
 ## Contexto
 
-O contrato JSON de pedido/nota usa números para dinheiro e taxa (`valor_total_itens`, `valor_frete`, `valor_unitario`, `valor_tributo_item`) e o domínio aplica produto em dois pontos: tributo (`valorUnitario * aliquota`) e frete (`valorFrete * fator`). Hoje tudo isso é `double`.
+O contrato JSON de pedido/nota usa números para dinheiro e taxa (`valor_total_itens`, `valor_frete`, `valor_unitario`, `valor_tributo_item`) e o domínio aplica produto em dois pontos: tributo (`valorUnitario * quantidade * aliquota`) e frete (`valorFrete * fator`). Hoje tudo isso é `double`.
 
 `double` é IEEE-754 binário: 0.12, 0.03 e 1.085 não cabem de forma exata. Faixas inteiras (`< 500`, `<= 2000`) até passam, mas o centavo da NF nasce do produto e do arredondamento implícito. Em nota fiscal isso é defeito de domínio, não detalhe de estilo.
 

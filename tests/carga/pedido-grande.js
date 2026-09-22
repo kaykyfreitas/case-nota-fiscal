@@ -20,5 +20,12 @@ export default function () {
         return false;
       }
     },
+    "tributo 12% na linha": (r) => {
+      try {
+        return r.json("itens").every((item) => item.valor_tributo_item === 12);
+      } catch (e) {
+        return false;
+      }
+    },
   });
 }
