@@ -109,6 +109,9 @@ public class GeradorNotaFiscalExceptionHandler {
     }
 
     private ProblemDetail problema(HttpStatus status, URI type, String title, String detail, String codigo) {
+        if (status.is4xxClientError()) {
+            log.warn("Requisicao rejeitada codigo={} detail={}", codigo, detail);
+        }
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(status, detail);
         problem.setType(type);
         problem.setTitle(title);

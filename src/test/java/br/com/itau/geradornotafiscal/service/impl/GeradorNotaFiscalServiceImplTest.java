@@ -1,5 +1,6 @@
 package br.com.itau.geradornotafiscal.service.impl;
 
+import br.com.itau.geradornotafiscal.adapter.out.observability.NotaFiscalMetrics;
 import br.com.itau.geradornotafiscal.domain.aliquota.CalculoAliquota;
 import br.com.itau.geradornotafiscal.domain.exception.PedidoInvalidoException;
 import br.com.itau.geradornotafiscal.domain.frete.CalculoFrete;
@@ -8,13 +9,16 @@ import br.com.itau.geradornotafiscal.model.Item;
 import br.com.itau.geradornotafiscal.model.ItemNotaFiscal;
 import br.com.itau.geradornotafiscal.model.NotaFiscal;
 import br.com.itau.geradornotafiscal.model.Pedido;
+import br.com.itau.geradornotafiscal.model.RegimeTributacaoPJ;
+import br.com.itau.geradornotafiscal.model.TipoPessoa;
 import br.com.itau.geradornotafiscal.service.EntregaService;
 import br.com.itau.geradornotafiscal.service.EstoqueService;
 import br.com.itau.geradornotafiscal.service.FinanceiroService;
 import br.com.itau.geradornotafiscal.service.RegistroService;
+import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -28,20 +32,19 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GeradorNotaFiscalServiceImplTest {
-
-    @InjectMocks
-    private GeradorNotaFiscalServiceImpl geradorNotaFiscalService;
 
     @Mock
     private CalculoAliquota calculoAliquota;
@@ -60,6 +63,22 @@ class GeradorNotaFiscalServiceImplTest {
 
     @Mock
     private FinanceiroService financeiroService;
+
+    private SimpleMeterRegistry meterRegistry;
+    private GeradorNotaFiscalServiceImpl geradorNotaFiscalService;
+
+    @BeforeEach
+    void setUp() {
+        meterRegistry = new SimpleMeterRegistry();
+        geradorNotaFiscalService = new GeradorNotaFiscalServiceImpl(
+                calculoAliquota,
+                calculoFrete,
+                entregaService,
+                estoqueService,
+                registroService,
+                financeiroService,
+                new NotaFiscalMetrics(meterRegistry));
+    }
 
     @Test
     void deveMontarNotaComAliquotaFreteEDispararIntegracoes() {
@@ -80,6 +99,25 @@ class GeradorNotaFiscalServiceImplTest {
         verify(registroService).registrarNotaFiscal(notaFiscal);
         verify(entregaService).agendarEntrega(notaFiscal);
         verify(financeiroService).enviarNotaFiscalParaContasReceber(notaFiscal);
+        assertEquals(1.0, emitidas("FISICA", "NA"));
+        assertEquals(1, meterRegistry.get("nf.gerar").timer().count());
+        assertEquals(1, meterRegistry.get("nf.integracao").tag("integracao", "estoque").timer().count());
+        assertEquals(1, meterRegistry.get("nf.integracao").tag("integracao", "registro").timer().count());
+        assertEquals(1, meterRegistry.get("nf.integracao").tag("integracao", "entrega").timer().count());
+        assertEquals(1, meterRegistry.get("nf.integracao").tag("integracao", "financeiro").timer().count());
+    }
+
+    @Test
+    void deveRegistrarNfEmitidaComRegimeQuandoForPessoaJuridica() {
+        Pedido pedido = pedidoComItem("400", "100", 4);
+        pedido.getDestinatario().setTipoPessoa(TipoPessoa.JURIDICA);
+        pedido.getDestinatario().setRegimeTributacao(RegimeTributacaoPJ.SIMPLES_NACIONAL);
+        when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
+        when(calculoFrete.calcular(pedido)).thenReturn(BigDecimal.ZERO);
+
+        geradorNotaFiscalService.gerarNotaFiscal(pedido);
+
+        assertEquals(1.0, emitidas("JURIDICA", "SIMPLES_NACIONAL"));
     }
 
     @Test
@@ -112,6 +150,7 @@ class GeradorNotaFiscalServiceImplTest {
 
         assertEquals("falha no estoque", erro.getMessage());
         assertTrue(registroInterrompido.get());
+        assertEquals(0.0, emitidasSeExistir());
     }
 
     @Test
@@ -119,7 +158,7 @@ class GeradorNotaFiscalServiceImplTest {
         Pedido pedido = pedidoBase();
         when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
         when(calculoFrete.calcular(pedido)).thenReturn(BigDecimal.ZERO);
-        doAnswer(invocation -> {
+        lenient().doAnswer(invocation -> {
             Thread.sleep(5_000);
             return null;
         }).when(estoqueService).enviarNotaFiscalParaBaixaEstoque(any());
@@ -177,6 +216,8 @@ class GeradorNotaFiscalServiceImplTest {
         assertEquals("valor_total_itens nao confere com a soma dos itens", erro.getMessage());
         verify(calculoFrete, never()).calcular(any());
         verify(calculoAliquota, never()).calcular(any());
+        assertEquals(0.0, emitidasSeExistir());
+        assertNull(meterRegistry.find("nf.gerar").timer());
     }
 
     @Test
@@ -262,6 +303,20 @@ class GeradorNotaFiscalServiceImplTest {
         item.setQuantidade(quantidade);
         pedido.setItens(List.of(item));
         pedido.setDestinatario(new Destinatario());
+        pedido.getDestinatario().setTipoPessoa(TipoPessoa.FISICA);
         return pedido;
+    }
+
+    private double emitidas(String tipoPessoa, String regime) {
+        return meterRegistry.get("nf.emitida")
+                .tag("tipo_pessoa", tipoPessoa)
+                .tag("regime", regime)
+                .counter()
+                .count();
+    }
+
+    private double emitidasSeExistir() {
+        var search = meterRegistry.find("nf.emitida").counter();
+        return search == null ? 0.0 : search.count();
     }
 }
