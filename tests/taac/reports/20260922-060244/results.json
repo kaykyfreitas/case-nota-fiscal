@@ -1,0 +1,600 @@
+[
+  {
+    "iterationIndex": 0,
+    "results": [
+      {
+        "test": {
+          "filename": "pf.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://host.docker.internal:8080/api/pedido/gerarNotaFiscal",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "data": "{\n  \"id_pedido\": 1,\n  \"data\": \"2022-05-01\",\n  \"valor_total_itens\": 100.0,\n  \"valor_frete\": 10.0,\n  \"itens\": [\n    {\n      \"id_item\": 1,\n      \"descricao\": \"Teclado USB\",\n      \"valor_unitario\": 50,\n      \"quantidade\": 2\n    }\n  ],\n  \"destinatario\": {\n    \"nome\": \"John Doe\",\n    \"tipo_pessoa\": \"FISICA\",\n    \"documentos\": [{ \"tipo\": \"CPF\", \"numero\": \"88740347095\" }],\n    \"enderecos\": [{\n      \"logradouro\": \"Av do estado\",\n      \"numero\": \"5533\",\n      \"bairro\": \"Mooca\",\n      \"cidade\": \"Sao Paulo\",\n      \"estado\": \"SP\",\n      \"pais\": \"Brasil\",\n      \"cep\": \"03105003\",\n      \"finalidade\": \"ENTREGA\",\n      \"regiao\": \"SUDESTE\"\n    }]\n  }\n}"
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {
+            "x-request-id": "47d58bee-6166-4058-9b12-9594cd08b7e6",
+            "content-type": "application/json",
+            "transfer-encoding": "chunked",
+            "date": "Tue, 22 Sep 2026 09:02:48 GMT",
+            "keep-alive": "timeout=60",
+            "connection": "keep-alive"
+          },
+          "data": {
+            "id_nota_fiscal": "5e86b50e-2840-45aa-bf2b-fd4bd028bbdb",
+            "data": "2026-09-22T06:02:48.015429256",
+            "valor_total_itens": 100,
+            "valor_frete": 10.48,
+            "itens": [
+              {
+                "id_item": "1",
+                "descricao": "Teclado USB",
+                "valor_unitario": 50,
+                "quantidade": 2,
+                "valor_tributo_item": 0
+              }
+            ],
+            "destinatario": {
+              "nome": "John Doe",
+              "tipo_pessoa": "FISICA",
+              "regime_tributacao": null,
+              "documentos": [
+                {
+                  "numero": "88740347095",
+                  "tipo": "CPF"
+                }
+              ],
+              "enderecos": [
+                {
+                  "cep": "03105003",
+                  "logradouro": "Av do estado",
+                  "numero": "5533",
+                  "bairro": "Mooca",
+                  "cidade": "Sao Paulo",
+                  "estado": "SP",
+                  "complemento": null,
+                  "finalidade": "ENTREGA",
+                  "regiao": "SUDESTE"
+                }
+              ]
+            }
+          },
+          "url": "http://host.docker.internal/api/pedido/gerarNotaFiscal",
+          "responseTime": 535,
+          "duration": 535,
+          "size": 581
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [
+          {
+            "uid": "ykC6aGw1kfHeG88NzI0sY",
+            "lhsExpr": "res.status",
+            "rhsExpr": "eq 200",
+            "rhsOperand": "200",
+            "operator": "eq",
+            "status": "pass"
+          },
+          {
+            "uid": "_0AQa2RP9LvnewYg8D3fx",
+            "lhsExpr": "res.body.itens",
+            "rhsExpr": "isArray",
+            "rhsOperand": "",
+            "operator": "isArray",
+            "status": "pass"
+          },
+          {
+            "uid": "O1bE0r89kCZ3Ct_DkJK6k",
+            "lhsExpr": "res.body.id_nota_fiscal",
+            "rhsExpr": "isDefined",
+            "rhsOperand": "",
+            "operator": "isDefined",
+            "status": "pass"
+          }
+        ],
+        "testResults": [
+          {
+            "description": "responde um unico item do pedido",
+            "status": "pass",
+            "uid": "KyP4e84W_4-nP5oZU6bqr"
+          },
+          {
+            "description": "PF abaixo de 500 tem tributo zero",
+            "status": "pass",
+            "uid": "06NCRuCZTtDRga_7aw0FH"
+          },
+          {
+            "description": "frete Sudeste aplica fator 1.048",
+            "status": "pass",
+            "uid": "TV3-sXPV7KKbjtIjzWSbh"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 1.027796164,
+        "name": "PF",
+        "suitename": "/bruno/pf",
+        "path": "pf",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "pf-segunda-chamada.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://host.docker.internal:8080/api/pedido/gerarNotaFiscal",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "data": "{\n  \"id_pedido\": 1,\n  \"data\": \"2022-05-01\",\n  \"valor_total_itens\": 100.0,\n  \"valor_frete\": 10.0,\n  \"itens\": [\n    {\n      \"id_item\": 1,\n      \"descricao\": \"Teclado USB\",\n      \"valor_unitario\": 50,\n      \"quantidade\": 2\n    }\n  ],\n  \"destinatario\": {\n    \"nome\": \"John Doe\",\n    \"tipo_pessoa\": \"FISICA\",\n    \"documentos\": [{ \"tipo\": \"CPF\", \"numero\": \"88740347095\" }],\n    \"enderecos\": [{\n      \"logradouro\": \"Av do estado\",\n      \"numero\": \"5533\",\n      \"bairro\": \"Mooca\",\n      \"cidade\": \"Sao Paulo\",\n      \"estado\": \"SP\",\n      \"pais\": \"Brasil\",\n      \"cep\": \"03105003\",\n      \"finalidade\": \"ENTREGA\",\n      \"regiao\": \"SUDESTE\"\n    }]\n  }\n}"
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {
+            "x-request-id": "d0a6e09e-776f-431b-aaa9-5d45b0e241e1",
+            "content-type": "application/json",
+            "transfer-encoding": "chunked",
+            "date": "Tue, 22 Sep 2026 09:02:49 GMT",
+            "keep-alive": "timeout=60",
+            "connection": "keep-alive"
+          },
+          "data": {
+            "id_nota_fiscal": "8e8ac3a4-f0f6-4561-981e-9811f7e77dc5",
+            "data": "2026-09-22T06:02:48.921694551",
+            "valor_total_itens": 100,
+            "valor_frete": 10.48,
+            "itens": [
+              {
+                "id_item": "1",
+                "descricao": "Teclado USB",
+                "valor_unitario": 50,
+                "quantidade": 2,
+                "valor_tributo_item": 0
+              }
+            ],
+            "destinatario": {
+              "nome": "John Doe",
+              "tipo_pessoa": "FISICA",
+              "regime_tributacao": null,
+              "documentos": [
+                {
+                  "numero": "88740347095",
+                  "tipo": "CPF"
+                }
+              ],
+              "enderecos": [
+                {
+                  "cep": "03105003",
+                  "logradouro": "Av do estado",
+                  "numero": "5533",
+                  "bairro": "Mooca",
+                  "cidade": "Sao Paulo",
+                  "estado": "SP",
+                  "complemento": null,
+                  "finalidade": "ENTREGA",
+                  "regiao": "SUDESTE"
+                }
+              ]
+            }
+          },
+          "url": "http://host.docker.internal/api/pedido/gerarNotaFiscal",
+          "responseTime": 508,
+          "duration": 508,
+          "size": 581
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [
+          {
+            "uid": "MEuUyoeqZyjAbJB0RlP-P",
+            "lhsExpr": "res.status",
+            "rhsExpr": "eq 200",
+            "rhsOperand": "200",
+            "operator": "eq",
+            "status": "pass"
+          },
+          {
+            "uid": "V0KsNSz09M4Vk37-1WKoa",
+            "lhsExpr": "res.body.itens",
+            "rhsExpr": "isArray",
+            "rhsOperand": "",
+            "operator": "isArray",
+            "status": "pass"
+          },
+          {
+            "uid": "g3T-cU4NTtWiJzkHMFSWY",
+            "lhsExpr": "res.body.id_nota_fiscal",
+            "rhsExpr": "isDefined",
+            "rhsOperand": "",
+            "operator": "isDefined",
+            "status": "pass"
+          }
+        ],
+        "testResults": [
+          {
+            "description": "segunda chamada nao acumula itens da primeira",
+            "status": "pass",
+            "uid": "b-NXzkrTHl0iN59dUqlSr"
+          },
+          {
+            "description": "tributo continua zero",
+            "status": "pass",
+            "uid": "X0dKomw5Xwc8MGBrfEcm2"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.746492046,
+        "name": "PF segunda chamada",
+        "suitename": "/bruno/pf-segunda-chamada",
+        "path": "pf-segunda-chamada",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "pj-simples.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://host.docker.internal:8080/api/pedido/gerarNotaFiscal",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "data": "{\n  \"id_pedido\": 1,\n  \"data\": \"2022-05-01\",\n  \"valor_total_itens\": 5840.0,\n  \"valor_frete\": 72.0,\n  \"itens\": [\n    {\n      \"id_item\": 1,\n      \"descricao\": \"Monitor LCD SAMSUNG\",\n      \"valor_unitario\": 730,\n      \"quantidade\": 8\n    }\n  ],\n  \"destinatario\": {\n    \"nome\": \"John Doe\",\n    \"tipo_pessoa\": \"JURIDICA\",\n    \"regime_tributacao\": \"SIMPLES_NACIONAL\",\n    \"documentos\": [{ \"tipo\": \"CNPJ\", \"numero\": \"49695613000180\" }],\n    \"enderecos\": [{\n      \"finalidade\": \"ENTREGA\",\n      \"regiao\": \"SUDESTE\"\n    }]\n  }\n}"
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {
+            "x-request-id": "8b449724-e943-46a1-b80d-859c53e29ea1",
+            "content-type": "application/json",
+            "transfer-encoding": "chunked",
+            "date": "Tue, 22 Sep 2026 09:02:50 GMT",
+            "keep-alive": "timeout=60",
+            "connection": "keep-alive"
+          },
+          "data": {
+            "id_nota_fiscal": "b93a0ff8-fb5b-4687-aca0-f7c7c9eceeaa",
+            "data": "2026-09-22T06:02:49.665004598",
+            "valor_total_itens": 5840,
+            "valor_frete": 75.46,
+            "itens": [
+              {
+                "id_item": "1",
+                "descricao": "Monitor LCD SAMSUNG",
+                "valor_unitario": 730,
+                "quantidade": 8,
+                "valor_tributo_item": 1109.6
+              }
+            ],
+            "destinatario": {
+              "nome": "John Doe",
+              "tipo_pessoa": "JURIDICA",
+              "regime_tributacao": "SIMPLES_NACIONAL",
+              "documentos": [
+                {
+                  "numero": "49695613000180",
+                  "tipo": "CNPJ"
+                }
+              ],
+              "enderecos": [
+                {
+                  "cep": null,
+                  "logradouro": null,
+                  "numero": null,
+                  "bairro": null,
+                  "cidade": null,
+                  "estado": null,
+                  "complemento": null,
+                  "finalidade": "ENTREGA",
+                  "regiao": "SUDESTE"
+                }
+              ]
+            }
+          },
+          "url": "http://host.docker.internal/api/pedido/gerarNotaFiscal",
+          "responseTime": 506,
+          "duration": 506,
+          "size": 586
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [
+          {
+            "uid": "j_NVrt3B_AbL80rOcf7xJ",
+            "lhsExpr": "res.status",
+            "rhsExpr": "eq 200",
+            "rhsOperand": "200",
+            "operator": "eq",
+            "status": "pass"
+          },
+          {
+            "uid": "IrH9Ur71y9nFruejl96_F",
+            "lhsExpr": "res.body.itens",
+            "rhsExpr": "isArray",
+            "rhsOperand": "",
+            "operator": "isArray",
+            "status": "pass"
+          },
+          {
+            "uid": "Y8XLDQ2YEFlwlOzPHS__L",
+            "lhsExpr": "res.body.id_nota_fiscal",
+            "rhsExpr": "isDefined",
+            "rhsOperand": "",
+            "operator": "isDefined",
+            "status": "pass"
+          }
+        ],
+        "testResults": [
+          {
+            "description": "responde apenas o item deste pedido",
+            "status": "pass",
+            "uid": "1rYpU4OWV7hXghaPRR28m"
+          },
+          {
+            "description": "Simples Nacional acima de 5000 usa aliquota 19%",
+            "status": "pass",
+            "uid": "5HjalG7p-ORDM4wYNgOXh"
+          },
+          {
+            "description": "frete Sudeste aplica fator 1.048",
+            "status": "pass",
+            "uid": "h2ChrvzXb7z26bQOu0qYB"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.733838919,
+        "name": "PJ Simples Nacional",
+        "suitename": "/bruno/pj-simples",
+        "path": "pj-simples",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "pedido-6-itens.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://host.docker.internal:8080/api/pedido/gerarNotaFiscal",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "data": "{\n  \"id_pedido\": 2,\n  \"data\": \"2022-05-01\",\n  \"valor_total_itens\": 600.0,\n  \"valor_frete\": 10.0,\n  \"itens\": [\n    { \"id_item\": 1, \"descricao\": \"Item 1\", \"valor_unitario\": 100, \"quantidade\": 1 },\n    { \"id_item\": 2, \"descricao\": \"Item 2\", \"valor_unitario\": 100, \"quantidade\": 1 },\n    { \"id_item\": 3, \"descricao\": \"Item 3\", \"valor_unitario\": 100, \"quantidade\": 1 },\n    { \"id_item\": 4, \"descricao\": \"Item 4\", \"valor_unitario\": 100, \"quantidade\": 1 },\n    { \"id_item\": 5, \"descricao\": \"Item 5\", \"valor_unitario\": 100, \"quantidade\": 1 },\n    { \"id_item\": 6, \"descricao\": \"Item 6\", \"valor_unitario\": 100, \"quantidade\": 1 }\n  ],\n  \"destinatario\": {\n    \"nome\": \"John Doe\",\n    \"tipo_pessoa\": \"FISICA\",\n    \"enderecos\": [{ \"finalidade\": \"ENTREGA\", \"regiao\": \"SUDESTE\" }]\n  }\n}"
+        },
+        "response": {
+          "status": 200,
+          "statusText": "",
+          "headers": {
+            "x-request-id": "4a6e0629-276c-485f-862d-94ae8c4c8d7b",
+            "content-type": "application/json",
+            "transfer-encoding": "chunked",
+            "date": "Tue, 22 Sep 2026 09:02:50 GMT",
+            "keep-alive": "timeout=60",
+            "connection": "keep-alive"
+          },
+          "data": {
+            "id_nota_fiscal": "9fc7f7ae-3610-4a72-aafd-4046d5ce7a7d",
+            "data": "2026-09-22T06:02:50.399701595",
+            "valor_total_itens": 600,
+            "valor_frete": 10.48,
+            "itens": [
+              {
+                "id_item": "1",
+                "descricao": "Item 1",
+                "valor_unitario": 100,
+                "quantidade": 1,
+                "valor_tributo_item": 12
+              },
+              {
+                "id_item": "2",
+                "descricao": "Item 2",
+                "valor_unitario": 100,
+                "quantidade": 1,
+                "valor_tributo_item": 12
+              },
+              {
+                "id_item": "3",
+                "descricao": "Item 3",
+                "valor_unitario": 100,
+                "quantidade": 1,
+                "valor_tributo_item": 12
+              },
+              {
+                "id_item": "4",
+                "descricao": "Item 4",
+                "valor_unitario": 100,
+                "quantidade": 1,
+                "valor_tributo_item": 12
+              },
+              {
+                "id_item": "5",
+                "descricao": "Item 5",
+                "valor_unitario": 100,
+                "quantidade": 1,
+                "valor_tributo_item": 12
+              },
+              {
+                "id_item": "6",
+                "descricao": "Item 6",
+                "valor_unitario": 100,
+                "quantidade": 1,
+                "valor_tributo_item": 12
+              }
+            ],
+            "destinatario": {
+              "nome": "John Doe",
+              "tipo_pessoa": "FISICA",
+              "regime_tributacao": null,
+              "documentos": null,
+              "enderecos": [
+                {
+                  "cep": null,
+                  "logradouro": null,
+                  "numero": null,
+                  "bairro": null,
+                  "cidade": null,
+                  "estado": null,
+                  "complemento": null,
+                  "finalidade": "ENTREGA",
+                  "regiao": "SUDESTE"
+                }
+              ]
+            }
+          },
+          "url": "http://host.docker.internal/api/pedido/gerarNotaFiscal",
+          "responseTime": 506,
+          "duration": 506,
+          "size": 1015
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [
+          {
+            "uid": "53fB2QESPLbV7syvmvl4J",
+            "lhsExpr": "res.status",
+            "rhsExpr": "eq 200",
+            "rhsOperand": "200",
+            "operator": "eq",
+            "status": "pass"
+          },
+          {
+            "uid": "7B9vMd0nSTRBFJJs6EBj5",
+            "lhsExpr": "res.body.itens",
+            "rhsExpr": "isArray",
+            "rhsOperand": "",
+            "operator": "isArray",
+            "status": "pass"
+          },
+          {
+            "uid": "KqOB0En5H6fmvG4JzLiI0",
+            "lhsExpr": "res.body.id_nota_fiscal",
+            "rhsExpr": "isDefined",
+            "rhsOperand": "",
+            "operator": "isDefined",
+            "status": "pass"
+          }
+        ],
+        "testResults": [
+          {
+            "description": "responde exatamente 6 itens",
+            "status": "pass",
+            "uid": "v5Ak_MNJPuQd8bx8NWYJx"
+          },
+          {
+            "description": "PF entre 500 e 2000 usa aliquota 12% na linha",
+            "status": "pass",
+            "uid": "D0YSp7KmMResan7WjGT8_"
+          },
+          {
+            "description": "frete Sudeste aplica fator 1.048",
+            "status": "pass",
+            "uid": "8LOFVxbuXXekR79mMZ4eD"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.735754893,
+        "name": "Pedido com 6 itens",
+        "suitename": "/bruno/pedido-6-itens",
+        "path": "pedido-6-itens",
+        "iterationIndex": 0
+      },
+      {
+        "test": {
+          "filename": "total-divergente.bru"
+        },
+        "request": {
+          "method": "POST",
+          "url": "http://host.docker.internal:8080/api/pedido/gerarNotaFiscal",
+          "headers": {
+            "Content-Type": "application/json"
+          },
+          "data": "{\n  \"id_pedido\": 1,\n  \"data\": \"2022-05-01\",\n  \"valor_total_itens\": 400.0,\n  \"valor_frete\": 10.0,\n  \"itens\": [\n    {\n      \"id_item\": 1,\n      \"descricao\": \"Teclado USB\",\n      \"valor_unitario\": 50,\n      \"quantidade\": 2\n    }\n  ],\n  \"destinatario\": {\n    \"nome\": \"John Doe\",\n    \"tipo_pessoa\": \"FISICA\",\n    \"enderecos\": [{ \"finalidade\": \"ENTREGA\", \"regiao\": \"SUDESTE\" }]\n  }\n}"
+        },
+        "response": {
+          "status": 422,
+          "statusText": "",
+          "headers": {
+            "x-request-id": "2260b516-e28e-4d1c-88e9-cb051af04abc",
+            "content-type": "application/problem+json",
+            "transfer-encoding": "chunked",
+            "date": "Tue, 22 Sep 2026 09:02:51 GMT",
+            "keep-alive": "timeout=60",
+            "connection": "keep-alive"
+          },
+          "data": {
+            "detail": "valor_total_itens nao confere com a soma dos itens",
+            "instance": "/api/pedido/gerarNotaFiscal",
+            "status": 422,
+            "title": "Pedido inválido",
+            "type": "urn:gerador-nota-fiscal:problema:pedido-invalido",
+            "codigo": "PEDIDO_INVALIDO"
+          },
+          "url": "http://host.docker.internal/api/pedido/gerarNotaFiscal",
+          "responseTime": 6,
+          "duration": 6,
+          "size": 229
+        },
+        "error": null,
+        "status": "pass",
+        "assertionResults": [
+          {
+            "uid": "5K5iuk0BXjxwALmIT1Top",
+            "lhsExpr": "res.status",
+            "rhsExpr": "eq 422",
+            "rhsOperand": "422",
+            "operator": "eq",
+            "status": "pass"
+          }
+        ],
+        "testResults": [
+          {
+            "description": "rejeita valor_total_itens que nao fecha com as linhas",
+            "status": "pass",
+            "uid": "RgxoIwENMRlAEQI7KBkOg"
+          }
+        ],
+        "preRequestTestResults": [],
+        "postResponseTestResults": [],
+        "shouldStopRunnerExecution": false,
+        "runDuration": 0.221356044,
+        "name": "Total divergente das linhas",
+        "suitename": "/bruno/total-divergente",
+        "path": "total-divergente",
+        "iterationIndex": 0
+      }
+    ],
+    "summary": {
+      "totalRequests": 5,
+      "passedRequests": 5,
+      "failedRequests": 0,
+      "errorRequests": 0,
+      "skippedRequests": 0,
+      "skippedByBail": 0,
+      "totalAssertions": 13,
+      "passedAssertions": 13,
+      "failedAssertions": 0,
+      "totalTests": 12,
+      "passedTests": 12,
+      "failedTests": 0,
+      "totalPreRequestTests": 0,
+      "passedPreRequestTests": 0,
+      "failedPreRequestTests": 0,
+      "totalPostResponseTests": 0,
+      "passedPostResponseTests": 0,
+      "failedPostResponseTests": 0
+    }
+  }
+]

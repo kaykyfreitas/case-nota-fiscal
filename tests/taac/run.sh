@@ -14,10 +14,10 @@ if [[ ! -f "$COLLECTION/bruno.json" ]]; then
   exit 1
 fi
 
-echo "Aguardando API em http://127.0.0.1:8080 ..."
+echo "Aguardando liveness em http://127.0.0.1:8080/actuator/health/liveness ..."
 ready=0
 for _ in $(seq 1 30); do
-  if curl -s -o /dev/null --max-time 1 "http://127.0.0.1:8080"; then
+  if curl -sf -o /dev/null --max-time 1 "http://127.0.0.1:8080/actuator/health/liveness"; then
     ready=1
     break
   fi
@@ -25,7 +25,7 @@ for _ in $(seq 1 30); do
 done
 
 if [[ "$ready" -ne 1 ]]; then
-  echo "API nao esta escutando na porta 8080. Suba com: docker compose up --build" >&2
+  echo "Liveness nao respondeu em /actuator/health/liveness. Suba com: docker compose up --build" >&2
   exit 1
 fi
 

@@ -8,7 +8,7 @@ Precisamos de três perguntas na própria JVM: a instância está viva, quantas 
 
 ## Decisão
 
-Instrumentar na aplicação e **exportar por pull**. O backend (Prometheus, Grafana, Datadog, etc.) é consumidor do scrape e do stdout; não entra no código nem no Compose default.
+Instrumentar na aplicação e **exportar por pull**. O backend (Prometheus, Grafana, Datadog, etc.) é consumidor do scrape e do stdout. Grafana local é **opcional** (`docker compose --profile metrics`); o Compose default do TaaC/k6 não sobe UI.
 
 - Actuator: `health` (liveness/readiness) e `prometheus`. Sem `env`/`heapdump`/`beans`.
 - Micrometer: `http.server.requests` automático; **Counter `nf.emitida`** só depois das integrações com sucesso; timers `nf.gerar` (depois da conferência até o join) e `nf.integracao` (`integracao=estoque|registro|entrega|financeiro`).
@@ -21,7 +21,7 @@ No Prometheus: `nf_emitida_total`; taxa entre instâncias `sum(rate(nf_emitida_t
 
 ## Consequências
 
-- Probe e scrape funcionam com `curl` / MockMvc, sem Grafana no Compose.
+- Probe e scrape funcionam com `curl` / MockMvc. Grafana **não** entra no `compose up` do TaaC: profile `metrics` sobe Prometheus (`:9090`) + Grafana (`:3000`, dashboard *Gerador NF*).
 - Stdout é JSON (Logstash): collector / Grafana Loki / Datadog Logs parseiam linha a linha; `requestId` é campo, não substring do `message`.
 - Volume de NF não é proxy de `http.server.requests` (este mistura 422 e `/actuator`).
 - Timers das laterais tornam o ADR008 mensurável: p99 de `nf.gerar` ~ máximo das quatro (~500 ms, registro), não a soma (~1480 ms).

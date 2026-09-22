@@ -1,0 +1,71 @@
+{
+  "uid": "gerador-nf",
+  "title": "Gerador NF",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "timezone": "browser",
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "NF emitidas (total nesta JVM)",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(nf_emitida_total)"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "timeseries",
+      "title": "NF emitidas / s",
+      "gridPos": { "h": 8, "w": 16, "x": 8, "y": 0 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum(rate(nf_emitida_total[1m]))",
+          "legendFormat": "emitidas"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "timeseries",
+      "title": "Latencia media das integracoes (s)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "rate(nf_integracao_seconds_sum[1m]) / rate(nf_integracao_seconds_count[1m])",
+          "legendFormat": "{{integracao}}"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "timeseries",
+      "title": "p99 nf.gerar e nf.integracao (s)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "datasource": { "type": "prometheus", "uid": "prometheus" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "nf_gerar_seconds{quantile=\"0.99\"}",
+          "legendFormat": "gerar p99"
+        },
+        {
+          "refId": "B",
+          "expr": "nf_integracao_seconds{quantile=\"0.99\"}",
+          "legendFormat": "{{integracao}} p99"
+        }
+      ]
+    }
+  ]
+}
