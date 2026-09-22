@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,12 +26,12 @@ class AliquotaStrategyTest {
             "3500, 0.15",
             "3501, 0.17"
     })
-    void pessoaFisica(double valorTotalItens, double aliquotaEsperada) {
+    void pessoaFisica(BigDecimal valorTotalItens, BigDecimal aliquotaEsperada) {
         AliquotaStrategy strategy = new PessoaFisicaAliquotaStrategy();
         Pedido pedido = pedido(TipoPessoa.FISICA, null, valorTotalItens);
 
         assertTrue(strategy.aplica(pedido));
-        assertEquals(aliquotaEsperada, strategy.aliquota(pedido));
+        assertThat(strategy.aliquota(pedido)).isEqualByComparingTo(aliquotaEsperada);
     }
 
     @ParameterizedTest
@@ -41,12 +43,12 @@ class AliquotaStrategyTest {
             "5000, 0.13",
             "5001, 0.19"
     })
-    void simplesNacional(double valorTotalItens, double aliquotaEsperada) {
+    void simplesNacional(BigDecimal valorTotalItens, BigDecimal aliquotaEsperada) {
         AliquotaStrategy strategy = new SimplesNacionalAliquotaStrategy();
         Pedido pedido = pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.SIMPLES_NACIONAL, valorTotalItens);
 
         assertTrue(strategy.aplica(pedido));
-        assertEquals(aliquotaEsperada, strategy.aliquota(pedido));
+        assertThat(strategy.aliquota(pedido)).isEqualByComparingTo(aliquotaEsperada);
     }
 
     @ParameterizedTest
@@ -58,12 +60,12 @@ class AliquotaStrategyTest {
             "5000, 0.15",
             "5001, 0.20"
     })
-    void lucroReal(double valorTotalItens, double aliquotaEsperada) {
+    void lucroReal(BigDecimal valorTotalItens, BigDecimal aliquotaEsperada) {
         AliquotaStrategy strategy = new LucroRealAliquotaStrategy();
         Pedido pedido = pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_REAL, valorTotalItens);
 
         assertTrue(strategy.aplica(pedido));
-        assertEquals(aliquotaEsperada, strategy.aliquota(pedido));
+        assertThat(strategy.aliquota(pedido)).isEqualByComparingTo(aliquotaEsperada);
     }
 
     @ParameterizedTest
@@ -75,31 +77,31 @@ class AliquotaStrategyTest {
             "5000, 0.16",
             "5001, 0.20"
     })
-    void lucroPresumido(double valorTotalItens, double aliquotaEsperada) {
+    void lucroPresumido(BigDecimal valorTotalItens, BigDecimal aliquotaEsperada) {
         AliquotaStrategy strategy = new LucroPresumidoAliquotaStrategy();
         Pedido pedido = pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_PRESUMIDO, valorTotalItens);
 
         assertTrue(strategy.aplica(pedido));
-        assertEquals(aliquotaEsperada, strategy.aliquota(pedido));
+        assertThat(strategy.aliquota(pedido)).isEqualByComparingTo(aliquotaEsperada);
     }
 
     @Test
     void naoDeveAplicarStrategyEmRegimeOuTipoDiferente() {
         assertFalse(new PessoaFisicaAliquotaStrategy()
-                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_REAL, 1000)));
+                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_REAL, new BigDecimal("1000"))));
         assertFalse(new SimplesNacionalAliquotaStrategy()
-                .aplica(pedido(TipoPessoa.FISICA, null, 1000)));
+                .aplica(pedido(TipoPessoa.FISICA, null, new BigDecimal("1000"))));
         assertFalse(new LucroRealAliquotaStrategy()
-                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.SIMPLES_NACIONAL, 1000)));
+                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.SIMPLES_NACIONAL, new BigDecimal("1000"))));
         assertFalse(new LucroRealAliquotaStrategy()
-                .aplica(pedido(TipoPessoa.FISICA, null, 1000)));
+                .aplica(pedido(TipoPessoa.FISICA, null, new BigDecimal("1000"))));
         assertFalse(new LucroPresumidoAliquotaStrategy()
-                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_REAL, 1000)));
+                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_REAL, new BigDecimal("1000"))));
         assertFalse(new LucroPresumidoAliquotaStrategy()
-                .aplica(pedido(TipoPessoa.FISICA, null, 1000)));
+                .aplica(pedido(TipoPessoa.FISICA, null, new BigDecimal("1000"))));
     }
 
-    private Pedido pedido(TipoPessoa tipoPessoa, RegimeTributacaoPJ regime, double valorTotalItens) {
+    private Pedido pedido(TipoPessoa tipoPessoa, RegimeTributacaoPJ regime, BigDecimal valorTotalItens) {
         Pedido pedido = new Pedido();
         pedido.setValorTotalItens(valorTotalItens);
 

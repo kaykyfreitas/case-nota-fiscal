@@ -1,5 +1,6 @@
 package br.com.itau.geradornotafiscal.model;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -23,12 +24,14 @@ public class Pedido {
 	private LocalDate data;
 
 	@JsonProperty("valor_total_itens")
+	@NotNull(message = "valor_total_itens e obrigatorio")
 	@PositiveOrZero(message = "valor_total_itens deve ser maior ou igual a zero")
-	private double valorTotalItens;
+	private BigDecimal valorTotalItens;
 
 	@JsonProperty("valor_frete")
+	@NotNull(message = "valor_frete e obrigatorio")
 	@PositiveOrZero(message = "valor_frete deve ser maior ou igual a zero")
-	private double valorFrete;
+	private BigDecimal valorFrete;
 
 	@JsonProperty("itens")
 	@NotEmpty(message = "Pedido deve conter ao menos um item")

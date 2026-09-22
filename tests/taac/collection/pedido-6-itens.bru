@@ -30,13 +30,13 @@ tests {
     const body = res.getBody();
     expect(body.valor_total_itens).to.equal(600);
     body.itens.forEach(function(item) {
-      expect(item.valor_tributo_item).to.be.closeTo(12, 0.001);
+      expect(item.valor_tributo_item).to.equal(12);
     });
   });
 
   test("frete Sudeste aplica fator 1.048", function() {
     const body = res.getBody();
-    expect(body.valor_frete).to.be.closeTo(10.48, 0.001);
+    expect(body.valor_frete).to.equal(10.48);
   });
 }
 

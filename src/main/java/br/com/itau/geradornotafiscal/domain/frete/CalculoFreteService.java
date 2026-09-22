@@ -7,6 +7,8 @@ import br.com.itau.geradornotafiscal.model.Pedido;
 import br.com.itau.geradornotafiscal.model.Regiao;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,9 +16,11 @@ import java.util.Objects;
 public class CalculoFreteService implements CalculoFrete {
 
     @Override
-    public double calcular(Pedido pedido) {
+    public BigDecimal calcular(Pedido pedido) {
         Regiao regiao = resolverRegiaoEntrega(pedido);
-        return pedido.getValorFrete() * regiao.getFatorFrete();
+        return pedido.getValorFrete()
+                .multiply(regiao.getFatorFrete())
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     private Regiao resolverRegiaoEntrega(Pedido pedido) {

@@ -16,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -59,20 +60,20 @@ class GeradorNotaFiscalServiceImplTest {
     @Test
     void deveMontarNotaComAliquotaFreteEDispararIntegracoes() {
         Pedido pedido = new Pedido();
-        pedido.setValorTotalItens(400);
+        pedido.setValorTotalItens(new BigDecimal("400"));
         pedido.setDestinatario(new Destinatario());
 
         List<ItemNotaFiscal> itensCalculados = List.of(
-                ItemNotaFiscal.builder().valorTributoItem(12).build()
+                ItemNotaFiscal.builder().valorTributoItem(new BigDecimal("12")).build()
         );
         when(calculoAliquota.calcular(pedido)).thenReturn(itensCalculados);
-        when(calculoFrete.calcular(pedido)).thenReturn(104.8);
+        when(calculoFrete.calcular(pedido)).thenReturn(new BigDecimal("104.80"));
 
         NotaFiscal notaFiscal = geradorNotaFiscalService.gerarNotaFiscal(pedido);
 
         assertEquals(pedido.getValorTotalItens(), notaFiscal.getValorTotalItens());
         assertEquals(itensCalculados, notaFiscal.getItens());
-        assertEquals(104.8, notaFiscal.getValorFrete());
+        assertEquals(new BigDecimal("104.80"), notaFiscal.getValorFrete());
         verify(estoqueService).enviarNotaFiscalParaBaixaEstoque(notaFiscal);
         verify(registroService).registrarNotaFiscal(notaFiscal);
         verify(entregaService).agendarEntrega(notaFiscal);
@@ -82,14 +83,14 @@ class GeradorNotaFiscalServiceImplTest {
     @Test
     void deveCancelarIntegracoesPendentesQuandoUmaFalhar() {
         Pedido pedido = new Pedido();
-        pedido.setValorTotalItens(400);
+        pedido.setValorTotalItens(new BigDecimal("400"));
         pedido.setDestinatario(new Destinatario());
 
         CountDownLatch registroEmAndamento = new CountDownLatch(1);
         AtomicBoolean registroInterrompido = new AtomicBoolean();
 
         when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
-        when(calculoFrete.calcular(pedido)).thenReturn(0.0);
+        when(calculoFrete.calcular(pedido)).thenReturn(BigDecimal.ZERO);
         doAnswer(invocation -> {
             assertTrue(registroEmAndamento.await(1, TimeUnit.SECONDS));
             throw new RuntimeException("falha no estoque");
@@ -117,7 +118,7 @@ class GeradorNotaFiscalServiceImplTest {
     void devePropagarErroQuandoRequestForInterrompidoNoJoin() {
         Pedido pedido = pedidoBase();
         when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
-        when(calculoFrete.calcular(pedido)).thenReturn(0.0);
+        when(calculoFrete.calcular(pedido)).thenReturn(BigDecimal.ZERO);
         doAnswer(invocation -> {
             Thread.sleep(5_000);
             return null;
@@ -138,7 +139,7 @@ class GeradorNotaFiscalServiceImplTest {
     void deveRelancarErrorDaIntegracao() {
         Pedido pedido = pedidoBase();
         when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
-        when(calculoFrete.calcular(pedido)).thenReturn(0.0);
+        when(calculoFrete.calcular(pedido)).thenReturn(BigDecimal.ZERO);
         doAnswer(invocation -> {
             throw new AssertionError("falha fatal");
         }).when(estoqueService).enviarNotaFiscalParaBaixaEstoque(any());
@@ -152,7 +153,7 @@ class GeradorNotaFiscalServiceImplTest {
     void deveEmbrulharCausaChecadaDaIntegracao() {
         Pedido pedido = pedidoBase();
         when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
-        when(calculoFrete.calcular(pedido)).thenReturn(0.0);
+        when(calculoFrete.calcular(pedido)).thenReturn(BigDecimal.ZERO);
         doAnswer(invocation -> {
             throw new java.io.IOException("timeout");
         }).when(estoqueService).enviarNotaFiscalParaBaixaEstoque(any());
@@ -165,7 +166,7 @@ class GeradorNotaFiscalServiceImplTest {
 
     private Pedido pedidoBase() {
         Pedido pedido = new Pedido();
-        pedido.setValorTotalItens(400);
+        pedido.setValorTotalItens(new BigDecimal("400"));
         pedido.setDestinatario(new Destinatario());
         return pedido;
     }

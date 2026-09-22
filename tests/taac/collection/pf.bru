@@ -35,7 +35,7 @@ tests {
 
   test("frete Sudeste aplica fator 1.048", function() {
     const body = res.getBody();
-    expect(body.valor_frete).to.be.closeTo(10.48, 0.001);
+    expect(body.valor_frete).to.equal(10.48);
   });
 }
 

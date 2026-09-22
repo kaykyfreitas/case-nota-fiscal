@@ -6,8 +6,18 @@ import br.com.itau.geradornotafiscal.model.RegimeTributacaoPJ;
 import br.com.itau.geradornotafiscal.model.TipoPessoa;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 @Component
 public class SimplesNacionalAliquotaStrategy implements AliquotaStrategy {
+
+    private static final BigDecimal FAIXA_1000 = new BigDecimal("1000");
+    private static final BigDecimal FAIXA_2000 = new BigDecimal("2000");
+    private static final BigDecimal FAIXA_5000 = new BigDecimal("5000");
+    private static final BigDecimal ALIQUOTA_03 = new BigDecimal("0.03");
+    private static final BigDecimal ALIQUOTA_07 = new BigDecimal("0.07");
+    private static final BigDecimal ALIQUOTA_13 = new BigDecimal("0.13");
+    private static final BigDecimal ALIQUOTA_19 = new BigDecimal("0.19");
 
     @Override
     public boolean aplica(Pedido pedido) {
@@ -16,17 +26,17 @@ public class SimplesNacionalAliquotaStrategy implements AliquotaStrategy {
     }
 
     @Override
-    public double aliquota(Pedido pedido) {
-        double valorTotalItens = pedido.getValorTotalItens();
-        if (valorTotalItens < 1000) {
-            return 0.03;
+    public BigDecimal aliquota(Pedido pedido) {
+        BigDecimal valorTotalItens = pedido.getValorTotalItens();
+        if (valorTotalItens.compareTo(FAIXA_1000) < 0) {
+            return ALIQUOTA_03;
         }
-        if (valorTotalItens <= 2000) {
-            return 0.07;
+        if (valorTotalItens.compareTo(FAIXA_2000) <= 0) {
+            return ALIQUOTA_07;
         }
-        if (valorTotalItens <= 5000) {
-            return 0.13;
+        if (valorTotalItens.compareTo(FAIXA_5000) <= 0) {
+            return ALIQUOTA_13;
         }
-        return 0.19;
+        return ALIQUOTA_19;
     }
 }

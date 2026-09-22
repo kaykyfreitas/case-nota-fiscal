@@ -17,6 +17,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
+
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.not;
@@ -58,14 +60,42 @@ class GeradorNFControllerTest {
     @Test
     void deveRetornarNotaFiscalQuandoPedidoForValido() throws Exception {
         when(notaFiscalService.gerarNotaFiscal(any(Pedido.class)))
-                .thenReturn(NotaFiscal.builder().idNotaFiscal("nf-1").valorTotalItens(100).valorFrete(10.48).build());
+                .thenReturn(NotaFiscal.builder()
+                        .idNotaFiscal("nf-1")
+                        .valorTotalItens(new BigDecimal("100"))
+                        .valorFrete(new BigDecimal("10.48"))
+                        .build());
 
         mockMvc.perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(PEDIDO_VALIDO_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id_nota_fiscal").value("nf-1"));
+                .andExpect(jsonPath("$.id_nota_fiscal").value("nf-1"))
+                .andExpect(jsonPath("$.valor_frete").value(10.48));
+    }
+
+    @Test
+    void deveRetornarBadRequestQuandoFaltarValorTotalItens() throws Exception {
+        mockMvc.perform(post(ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "id_pedido": 1,
+                                  "valor_frete": 10,
+                                  "itens": [{"descricao": "Teclado", "valor_unitario": 50, "quantidade": 1}],
+                                  "destinatario": {
+                                    "nome": "John Doe",
+                                    "tipo_pessoa": "FISICA",
+                                    "enderecos": [{"finalidade": "ENTREGA", "regiao": "SUDESTE"}]
+                                  }
+                                }
+                                """))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("REQUISICAO_INVALIDA"))
+                .andExpect(jsonPath("$.errors[*].message").value(hasItem("valor_total_itens e obrigatorio")));
+
+        verify(notaFiscalService, never()).gerarNotaFiscal(any());
     }
 
     @Test

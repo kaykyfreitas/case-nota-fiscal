@@ -15,8 +15,10 @@ import br.com.itau.geradornotafiscal.model.TipoPessoa;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -39,27 +41,27 @@ class CalculoAliquotaServiceTest {
 
     @Test
     void deveCalcularAliquotaZeroParaPessoaFisicaAbaixoDe500() {
-        Pedido pedido = pedido(TipoPessoa.FISICA, null, 400, item(100, 4));
+        Pedido pedido = pedido(TipoPessoa.FISICA, null, "400", item("100", 4));
 
         List<ItemNotaFiscal> itens = calculoAliquotaService.calcular(pedido);
 
         assertEquals(1, itens.size());
-        assertEquals(0, itens.get(0).getValorTributoItem());
+        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("0");
     }
 
     @Test
     void deveCalcularAliquotaDeLucroPresumidoAcimaDe5000() {
-        Pedido pedido = pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_PRESUMIDO, 6000, item(1000, 6));
+        Pedido pedido = pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_PRESUMIDO, "6000", item("1000", 6));
 
         List<ItemNotaFiscal> itens = calculoAliquotaService.calcular(pedido);
 
         assertEquals(1, itens.size());
-        assertEquals(0.20 * 1000, itens.get(0).getValorTributoItem());
+        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("200.00");
     }
 
     @Test
     void deveFalharQuandoRegimeForOutros() {
-        Pedido pedido = pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.OUTROS, 6000, item(1000, 6));
+        Pedido pedido = pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.OUTROS, "6000", item("1000", 6));
 
         assertThrows(RegimeTributacaoNaoSuportadoException.class, () -> calculoAliquotaService.calcular(pedido));
     }
@@ -67,7 +69,7 @@ class CalculoAliquotaServiceTest {
     @Test
     void deveFalharQuandoPedidoNaoTiverDestinatario() {
         Pedido pedido = new Pedido();
-        pedido.setItens(List.of(item(100, 1)));
+        pedido.setItens(List.of(item("100", 1)));
 
         assertThrows(PedidoInvalidoException.class, () -> calculoAliquotaService.calcular(pedido));
     }
@@ -90,14 +92,14 @@ class CalculoAliquotaServiceTest {
 
     @Test
     void deveFalharQuandoListaDeItensEstiverVazia() {
-        Pedido pedido = pedido(TipoPessoa.FISICA, null, 400);
+        Pedido pedido = pedido(TipoPessoa.FISICA, null, "400");
 
         assertThrows(PedidoInvalidoException.class, () -> calculoAliquotaService.calcular(pedido));
     }
 
-    private Pedido pedido(TipoPessoa tipoPessoa, RegimeTributacaoPJ regime, double valorTotal, Item... itens) {
+    private Pedido pedido(TipoPessoa tipoPessoa, RegimeTributacaoPJ regime, String valorTotal, Item... itens) {
         Pedido pedido = new Pedido();
-        pedido.setValorTotalItens(valorTotal);
+        pedido.setValorTotalItens(new BigDecimal(valorTotal));
         pedido.setItens(List.of(itens));
 
         Destinatario destinatario = new Destinatario();
@@ -107,9 +109,9 @@ class CalculoAliquotaServiceTest {
         return pedido;
     }
 
-    private Item item(double valorUnitario, int quantidade) {
+    private Item item(String valorUnitario, int quantidade) {
         Item item = new Item();
-        item.setValorUnitario(valorUnitario);
+        item.setValorUnitario(new BigDecimal(valorUnitario));
         item.setQuantidade(quantidade);
         return item;
     }

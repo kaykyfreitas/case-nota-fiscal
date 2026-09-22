@@ -4,16 +4,20 @@ import br.com.itau.geradornotafiscal.model.Item;
 import br.com.itau.geradornotafiscal.model.ItemNotaFiscal;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class CalculadoraAliquotaProduto {
 
-    public List<ItemNotaFiscal> calcularAliquota(List<Item> items, double aliquotaPercentual) {
+    public List<ItemNotaFiscal> calcularAliquota(List<Item> items, BigDecimal aliquotaPercentual) {
         List<ItemNotaFiscal> itemNotaFiscalList = new ArrayList<>();
         for (Item item : items) {
-            double valorTributo = item.getValorUnitario() * aliquotaPercentual;
+            BigDecimal valorTributo = item.getValorUnitario()
+                    .multiply(aliquotaPercentual)
+                    .setScale(2, RoundingMode.HALF_UP);
             ItemNotaFiscal itemNotaFiscal = ItemNotaFiscal.builder()
                     .idItem(item.getIdItem())
                     .descricao(item.getDescricao())

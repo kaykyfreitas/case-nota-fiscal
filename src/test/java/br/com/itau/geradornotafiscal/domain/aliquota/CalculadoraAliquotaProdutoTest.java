@@ -4,8 +4,10 @@ import br.com.itau.geradornotafiscal.model.Item;
 import br.com.itau.geradornotafiscal.model.ItemNotaFiscal;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigDecimal;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CalculadoraAliquotaProdutoTest {
@@ -15,15 +17,27 @@ class CalculadoraAliquotaProdutoTest {
         Item item = new Item();
         item.setIdItem("1");
         item.setDescricao("Produto");
-        item.setValorUnitario(100);
+        item.setValorUnitario(new BigDecimal("100"));
         item.setQuantidade(2);
 
         List<ItemNotaFiscal> itens = new CalculadoraAliquotaProduto()
-                .calcularAliquota(List.of(item), 0.12);
+                .calcularAliquota(List.of(item), new BigDecimal("0.12"));
 
         assertEquals(1, itens.size());
         assertEquals("1", itens.get(0).getIdItem());
-        assertEquals(12, itens.get(0).getValorTributoItem());
+        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("12.00");
         assertEquals(2, itens.get(0).getQuantidade());
+    }
+
+    @Test
+    void deveArredondarTributoComDuasCasasHalfUp() {
+        Item item = new Item();
+        item.setValorUnitario(new BigDecimal("10.15"));
+        item.setQuantidade(1);
+
+        List<ItemNotaFiscal> itens = new CalculadoraAliquotaProduto()
+                .calcularAliquota(List.of(item), new BigDecimal("0.12"));
+
+        assertThat(itens.get(0).getValorTributoItem()).isEqualByComparingTo("1.22");
     }
 }

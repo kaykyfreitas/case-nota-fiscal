@@ -10,9 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.math.BigDecimal;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CalculoFreteServiceTest {
@@ -21,28 +22,28 @@ class CalculoFreteServiceTest {
 
     @ParameterizedTest
     @CsvSource({
-            "NORTE, 108",
-            "NORDESTE, 108.5",
-            "CENTRO_OESTE, 107",
-            "SUDESTE, 104.8",
-            "SUL, 106"
+            "NORTE, 108.00",
+            "NORDESTE, 108.50",
+            "CENTRO_OESTE, 107.00",
+            "SUDESTE, 104.80",
+            "SUL, 106.00"
     })
-    void deveAplicarFatorDaRegiaoDeEntrega(Regiao regiao, double freteEsperado) {
-        Pedido pedido = pedido(100, endereco(Finalidade.ENTREGA, regiao));
+    void deveAplicarFatorDaRegiaoDeEntrega(Regiao regiao, BigDecimal freteEsperado) {
+        Pedido pedido = pedido("100", endereco(Finalidade.ENTREGA, regiao));
 
-        assertEquals(freteEsperado, calculoFreteService.calcular(pedido), 0.0001);
+        assertThat(calculoFreteService.calcular(pedido)).isEqualByComparingTo(freteEsperado);
     }
 
     @Test
     void deveAceitarEnderecoDeCobrancaEntrega() {
-        Pedido pedido = pedido(100, endereco(Finalidade.COBRANCA_ENTREGA, Regiao.SUL));
+        Pedido pedido = pedido("100", endereco(Finalidade.COBRANCA_ENTREGA, Regiao.SUL));
 
-        assertEquals(106, calculoFreteService.calcular(pedido), 0.0001);
+        assertThat(calculoFreteService.calcular(pedido)).isEqualByComparingTo("106.00");
     }
 
     @Test
     void deveFalharQuandoSoHouverEnderecoDeCobranca() {
-        Pedido pedido = pedido(100, endereco(Finalidade.COBRANCA, Regiao.SUDESTE));
+        Pedido pedido = pedido("100", endereco(Finalidade.COBRANCA, Regiao.SUDESTE));
 
         assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
     }
@@ -55,7 +56,7 @@ class CalculoFreteServiceTest {
     @Test
     void deveFalharQuandoPedidoNaoTiverDestinatario() {
         Pedido pedido = new Pedido();
-        pedido.setValorFrete(100);
+        pedido.setValorFrete(new BigDecimal("100"));
 
         assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
     }
@@ -63,7 +64,7 @@ class CalculoFreteServiceTest {
     @Test
     void deveFalharQuandoNaoHouverEnderecos() {
         Pedido pedido = new Pedido();
-        pedido.setValorFrete(100);
+        pedido.setValorFrete(new BigDecimal("100"));
         pedido.setDestinatario(new Destinatario());
 
         assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
@@ -72,7 +73,7 @@ class CalculoFreteServiceTest {
     @Test
     void deveFalharQuandoListaDeEnderecosEstiverVazia() {
         Pedido pedido = new Pedido();
-        pedido.setValorFrete(100);
+        pedido.setValorFrete(new BigDecimal("100"));
         Destinatario destinatario = new Destinatario();
         destinatario.setEnderecos(List.of());
         pedido.setDestinatario(destinatario);
@@ -82,7 +83,7 @@ class CalculoFreteServiceTest {
 
     @Test
     void deveFalharQuandoEntregaNaoTiverRegiao() {
-        Pedido pedido = pedido(100, endereco(Finalidade.ENTREGA, null));
+        Pedido pedido = pedido("100", endereco(Finalidade.ENTREGA, null));
 
         assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
     }
@@ -90,18 +91,18 @@ class CalculoFreteServiceTest {
     @Test
     void deveUsarOPrimeiroEnderecoDeEntrega() {
         Pedido pedido = pedido(
-                100,
+                "100",
                 endereco(Finalidade.COBRANCA, Regiao.NORTE),
                 endereco(Finalidade.ENTREGA, Regiao.SUL),
                 endereco(Finalidade.ENTREGA, Regiao.NORDESTE)
         );
 
-        assertEquals(106, calculoFreteService.calcular(pedido), 0.0001);
+        assertThat(calculoFreteService.calcular(pedido)).isEqualByComparingTo("106.00");
     }
 
-    private Pedido pedido(double valorFrete, Endereco... enderecos) {
+    private Pedido pedido(String valorFrete, Endereco... enderecos) {
         Pedido pedido = new Pedido();
-        pedido.setValorFrete(valorFrete);
+        pedido.setValorFrete(new BigDecimal(valorFrete));
 
         Destinatario destinatario = new Destinatario();
         destinatario.setEnderecos(List.of(enderecos));
