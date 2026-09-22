@@ -1,8 +1,8 @@
 package br.com.itau.geradornotafiscal.adapter.in.web;
 
-import br.com.itau.geradornotafiscal.model.NotaFiscal;
-import br.com.itau.geradornotafiscal.model.Pedido;
-import br.com.itau.geradornotafiscal.service.GeradorNotaFiscalService;
+import br.com.itau.geradornotafiscal.core.domain.model.NotaFiscal;
+import br.com.itau.geradornotafiscal.core.domain.model.Pedido;
+import br.com.itau.geradornotafiscal.core.service.GeradorNotaFiscalService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

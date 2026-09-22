@@ -1,8 +1,8 @@
 package br.com.itau.geradornotafiscal.adapter.in.web;
 
-import br.com.itau.geradornotafiscal.domain.exception.GeradorNotaFiscalException;
-import br.com.itau.geradornotafiscal.domain.exception.PedidoInvalidoException;
-import br.com.itau.geradornotafiscal.domain.exception.RegimeTributacaoNaoSuportadoException;
+import br.com.itau.geradornotafiscal.core.domain.exception.GeradorNotaFiscalException;
+import br.com.itau.geradornotafiscal.core.domain.exception.PedidoInvalidoException;
+import br.com.itau.geradornotafiscal.core.domain.exception.RegimeTributacaoNaoSuportadoException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

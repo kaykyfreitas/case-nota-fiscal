@@ -1,9 +1,9 @@
 package br.com.itau.geradornotafiscal.adapter.in.web;
 
-import br.com.itau.geradornotafiscal.service.EntregaService;
-import br.com.itau.geradornotafiscal.service.EstoqueService;
-import br.com.itau.geradornotafiscal.service.FinanceiroService;
-import br.com.itau.geradornotafiscal.service.RegistroService;
+import br.com.itau.geradornotafiscal.core.service.EntregaService;
+import br.com.itau.geradornotafiscal.core.service.EstoqueService;
+import br.com.itau.geradornotafiscal.core.service.FinanceiroService;
+import br.com.itau.geradornotafiscal.core.service.RegistroService;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

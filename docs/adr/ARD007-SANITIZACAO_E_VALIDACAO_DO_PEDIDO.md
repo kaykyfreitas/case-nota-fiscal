@@ -10,18 +10,18 @@ Já que ficou decidido seguir sem uma camada de DTOs e mapeamento nesse momento,
 
 Na entrada HTTP, nesta ordem:
 
-1. Jackson desserializa o JSON no `Pedido` compartilhado;
-2. `PedidoSanitizacaoAdvice` (`RequestBodyAdvice`) faz `trim` nas strings; branco vira `null` (higiene do modelo; `@NotBlank` já recusaria `""`);
+1. Jackson desserializa o JSON no `Pedido` compartilhado (`core.domain.model`);
+2. `PedidoSanitizacaoAdvice` (`RequestBodyAdvice` em `adapter.in.web`) faz `trim` nas strings; branco vira `null` (higiene do modelo; `@NotBlank` já recusaria `""`);
 3. Bean Validation (`@Valid`): destinatário, itens, endereço de entrega, regime obrigatório para PJ, valores não negativos.
 
 Erros de contrato → **400** Problem Details (RFC 9457) com `errors[]`. O gerador **não** é chamado.
 
-Falha de regra no domínio → **422**. O payload já passou no `@Valid`; o controller chama `gerarNotaFiscal` e a exception de domínio (`RegimeTributacaoNaoSuportadoException`, `PedidoInvalidoException`) é traduzida pelo Advice. Exemplos: PJ `OUTROS` (recusa no cálculo de alíquota); `valor_total_itens` diferente da soma `unitário × quantidade` das linhas — conferência no **gerador**, antes de frete e alíquota.
+Falha de regra no domínio → **422**. O payload já passou no `@Valid`; o controller chama `gerarNotaFiscal` e a exception de domínio (`RegimeTributacaoNaoSuportadoException`, `PedidoInvalidoException` em `core.domain.exception`) é traduzida pelo Advice. Exemplos: PJ `OUTROS` (recusa no cálculo de alíquota); `valor_total_itens` diferente da soma `unitário × quantidade` das linhas — conferência no **gerador**, antes de frete e alíquota.
 
 Constraints estruturais ficam no model; o advice fica em `adapter.in.web`.
 
 ## Consequências
 
-- 400 vs 422 fica explícito para o cliente e para a entrevista.
+- 400 vs 422 fica explícito para o cliente.
 - Há sobreposição parcial com exceptions de domínio (rede de segurança se alguém chamar o serviço sem HTTP).
 - O model carrega `jakarta.validation`; Lombok precisa estar em `annotationProcessorPaths` no Maven para conviver com o starter de validation.

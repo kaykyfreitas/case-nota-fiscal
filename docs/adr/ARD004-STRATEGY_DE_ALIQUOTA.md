@@ -8,11 +8,12 @@ PF e os regimes PJ (Simples, Lucro Real, Lucro Presumido) têm faixas e percentu
 
 ## Decisão
 
-- `CalculoAliquota` / `CalculoAliquotaService`: fachada que o gerador chama (`calcular(Pedido)`).
-- `AliquotaStrategy` por política (PF, Simples Nacional, Lucro Real, Lucro Presumido).
+- `CalculoAliquota` / `CalculoAliquotaService` em `core.domain.aliquota`: fachada que o gerador chama (`calcular(Pedido)`).
+- `AliquotaStrategy` por política (PF, Simples Nacional, Lucro Real, Lucro Presumido) em `core.domain.aliquota.strategy`.
 - `CalculadoraAliquotaProduto`: tributo da linha `valorUnitario * quantidade * aliquota`, 2 casas `HALF_UP`.
+- Tipo de pessoa e regime vêm de `core.domain.enums` (`TipoPessoa`, `RegimeTributacaoPJ`).
 
-Nenhuma strategy para `OUTROS` (e equivalentes sem regra): o seletor lança `RegimeTributacaoNaoSuportadoException`.
+Nenhuma strategy para `OUTROS` (e equivalentes sem regra): o seletor lança `RegimeTributacaoNaoSuportadoException` (`core.domain.exception`).
 
 ## Consequências
 

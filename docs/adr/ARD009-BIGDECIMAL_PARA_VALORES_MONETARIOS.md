@@ -6,7 +6,7 @@ O contrato JSON de pedido/nota usa números para dinheiro e taxa (`valor_total_i
 
 `double` é IEEE-754 binário: 0.12, 0.03 e 1.085 não cabem de forma exata. Faixas inteiras (`< 500`, `<= 2000`) até passam, mas o centavo da NF nasce do produto e do arredondamento implícito. Em nota fiscal isso é defeito de domínio, não detalhe de estilo.
 
-O model é compartilhado (ADR006): o tipo do campo é ao mesmo tempo Jackson e vocabulário de `CalculoAliquota` / `CalculoFrete` (ADR004, ADR005). Trocar o tipo no model troca o cálculo sem DTO novo. O JSON permanece número; não há quebra de contrato de nomes nem de forma do payload.
+O model é compartilhado em `core.domain.model` (ADR006): o tipo do campo é ao mesmo tempo Jackson e vocabulário de `CalculoAliquota` / `CalculoFrete` (ADR004, ADR005). Trocar o tipo no model troca o cálculo sem DTO novo. O JSON permanece número; não há quebra de contrato de nomes nem de forma do payload.
 
 `quantidade` não é dinheiro: continua `int`.
 
@@ -16,7 +16,7 @@ Usar `java.math.BigDecimal` para:
 
 - valores monetários do model (`Pedido`, `Item`, `NotaFiscal`, `ItemNotaFiscal`);
 - alíquotas das strategies e de `CalculadoraAliquotaProduto`;
-- fatores de `Regiao`.
+- fatores de `Regiao` (`core.domain.enums`).
 
 Regras de construção e comparação:
 

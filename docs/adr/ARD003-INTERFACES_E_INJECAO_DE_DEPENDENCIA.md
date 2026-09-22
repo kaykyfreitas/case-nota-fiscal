@@ -6,11 +6,11 @@ O orquestrador legado instanciava estoque, registro, entrega, financeiro e a cal
 
 ## Decisão
 
-Expor cada integração como interface (`EstoqueService`, `RegistroService`, `EntregaService`, `FinanceiroService`) e implementar beans Spring injetados no `GeradorNotaFiscalServiceImpl`.
+Expor cada integração como interface em `core.service` (`EstoqueService`, `RegistroService`, `EntregaService`, `FinanceiroService`) e implementar beans Spring injetados no `GeradorNotaFiscalServiceImpl` (`core.service.impl`).
 
-A entrega, que combina espera de domínio (150 ms) e I/O simulado (200 ms), ganha `EntregaIntegrationPort` + `EntregaIntegrationAdapter`. As outras integrações, hoje só `sleep`, permanecem no `*ServiceImpl` até existir sistema externo distinto.
+A entrega, que combina espera de domínio (150 ms) e I/O simulado (200 ms), ganha `EntregaIntegrationPort` (`core.port.out`) + `EntregaIntegrationAdapter` (`adapter.out`). As outras integrações, hoje só `sleep`, permanecem no `*ServiceImpl` até existir sistema externo distinto.
 
-O caso de uso (`GeradorNotaFiscalService`) é a porta de entrada: o adapter HTTP **usa** a interface, não a implementa.
+O caso de uso (`GeradorNotaFiscalService`) é a porta de entrada: o adapter HTTP (`adapter.in.web`) **usa** a interface, não a implementa. O `core` não importa `adapter`.
 
 ## Consequências
 
