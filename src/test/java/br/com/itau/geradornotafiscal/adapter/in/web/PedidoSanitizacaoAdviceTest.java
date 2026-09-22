@@ -101,4 +101,28 @@ class PedidoSanitizacaoAdviceTest {
 
         assertEquals(pedido, resultado);
     }
+
+    @Test
+    void naoDeveFalharQuandoPedidoForNulo() {
+        assertNull(advice.afterBodyRead(null, null, null, null, null));
+    }
+
+    @Test
+    void naoDeveFalharQuandoListasInternasForemNulasOuTiveremNulos() {
+        Destinatario destinatario = new Destinatario();
+        destinatario.setDocumentos(null);
+        destinatario.setEnderecos(new ArrayList<>(Arrays.asList(null, new Endereco())));
+
+        Pedido pedido = new Pedido();
+        pedido.setItens(null);
+        pedido.setDestinatario(destinatario);
+
+        advice.afterBodyRead(pedido, null, null, null, null);
+
+        Destinatario comDocsNulos = new Destinatario();
+        comDocsNulos.setDocumentos(new ArrayList<>(Arrays.asList(null, new Documento())));
+        Pedido outro = new Pedido();
+        outro.setDestinatario(comDocsNulos);
+        advice.afterBodyRead(outro, null, null, null, null);
+    }
 }

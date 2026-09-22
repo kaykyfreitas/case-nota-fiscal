@@ -1,5 +1,6 @@
 package br.com.itau.geradornotafiscal.adapter.in.web;
 
+import br.com.itau.geradornotafiscal.domain.exception.GeradorNotaFiscalException;
 import br.com.itau.geradornotafiscal.domain.exception.PedidoInvalidoException;
 import br.com.itau.geradornotafiscal.domain.exception.RegimeTributacaoNaoSuportadoException;
 import br.com.itau.geradornotafiscal.model.NotaFiscal;
@@ -318,5 +319,30 @@ class GeradorNFControllerTest {
                 .andExpect(jsonPath("$.errors[*].message").value(hasItem("Pedido deve conter ao menos um item")));
 
         verify(notaFiscalService, never()).gerarNotaFiscal(any());
+    }
+
+    @Test
+    void deveRetornarProblemDetailsQuandoCorpoNaoForJson() throws Exception {
+        mockMvc.perform(post(ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.codigo").value("REQUISICAO_INVALIDA"))
+                .andExpect(jsonPath("$.detail").value("O corpo da requisicao e invalido."));
+
+        verify(notaFiscalService, never()).gerarNotaFiscal(any());
+    }
+
+    @Test
+    void deveRetornarProblemDetailsParaExcecaoGenericaDeDominio() throws Exception {
+        when(notaFiscalService.gerarNotaFiscal(any(Pedido.class)))
+                .thenThrow(new GeradorNotaFiscalException("falha de dominio"));
+
+        mockMvc.perform(post(ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(PEDIDO_VALIDO_JSON))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.codigo").value("GERADOR_NOTA_FISCAL"))
+                .andExpect(jsonPath("$.detail").value("falha de dominio"));
     }
 }

@@ -5,10 +5,12 @@ import br.com.itau.geradornotafiscal.model.Destinatario;
 import br.com.itau.geradornotafiscal.model.Pedido;
 import br.com.itau.geradornotafiscal.model.RegimeTributacaoPJ;
 import br.com.itau.geradornotafiscal.model.TipoPessoa;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AliquotaStrategyTest {
@@ -79,6 +81,22 @@ class AliquotaStrategyTest {
 
         assertTrue(strategy.aplica(pedido));
         assertEquals(aliquotaEsperada, strategy.aliquota(pedido));
+    }
+
+    @Test
+    void naoDeveAplicarStrategyEmRegimeOuTipoDiferente() {
+        assertFalse(new PessoaFisicaAliquotaStrategy()
+                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_REAL, 1000)));
+        assertFalse(new SimplesNacionalAliquotaStrategy()
+                .aplica(pedido(TipoPessoa.FISICA, null, 1000)));
+        assertFalse(new LucroRealAliquotaStrategy()
+                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.SIMPLES_NACIONAL, 1000)));
+        assertFalse(new LucroRealAliquotaStrategy()
+                .aplica(pedido(TipoPessoa.FISICA, null, 1000)));
+        assertFalse(new LucroPresumidoAliquotaStrategy()
+                .aplica(pedido(TipoPessoa.JURIDICA, RegimeTributacaoPJ.LUCRO_REAL, 1000)));
+        assertFalse(new LucroPresumidoAliquotaStrategy()
+                .aplica(pedido(TipoPessoa.FISICA, null, 1000)));
     }
 
     private Pedido pedido(TipoPessoa tipoPessoa, RegimeTributacaoPJ regime, double valorTotalItens) {

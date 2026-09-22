@@ -73,7 +73,23 @@ class CalculoAliquotaServiceTest {
     }
 
     @Test
-    void deveFalharQuandoPedidoNaoTiverItens() {
+    void deveFalharQuandoPedidoForNulo() {
+        assertThrows(PedidoInvalidoException.class, () -> calculoAliquotaService.calcular(null));
+    }
+
+    @Test
+    void deveFalharQuandoListaDeItensForNula() {
+        Pedido pedido = new Pedido();
+        Destinatario destinatario = new Destinatario();
+        destinatario.setTipoPessoa(TipoPessoa.FISICA);
+        pedido.setDestinatario(destinatario);
+        pedido.setItens(null);
+
+        assertThrows(PedidoInvalidoException.class, () -> calculoAliquotaService.calcular(pedido));
+    }
+
+    @Test
+    void deveFalharQuandoListaDeItensEstiverVazia() {
         Pedido pedido = pedido(TipoPessoa.FISICA, null, 400);
 
         assertThrows(PedidoInvalidoException.class, () -> calculoAliquotaService.calcular(pedido));

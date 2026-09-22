@@ -48,9 +48,41 @@ class CalculoFreteServiceTest {
     }
 
     @Test
+    void deveFalharQuandoPedidoForNulo() {
+        assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(null));
+    }
+
+    @Test
     void deveFalharQuandoPedidoNaoTiverDestinatario() {
         Pedido pedido = new Pedido();
         pedido.setValorFrete(100);
+
+        assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
+    }
+
+    @Test
+    void deveFalharQuandoNaoHouverEnderecos() {
+        Pedido pedido = new Pedido();
+        pedido.setValorFrete(100);
+        pedido.setDestinatario(new Destinatario());
+
+        assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
+    }
+
+    @Test
+    void deveFalharQuandoListaDeEnderecosEstiverVazia() {
+        Pedido pedido = new Pedido();
+        pedido.setValorFrete(100);
+        Destinatario destinatario = new Destinatario();
+        destinatario.setEnderecos(List.of());
+        pedido.setDestinatario(destinatario);
+
+        assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
+    }
+
+    @Test
+    void deveFalharQuandoEntregaNaoTiverRegiao() {
+        Pedido pedido = pedido(100, endereco(Finalidade.ENTREGA, null));
 
         assertThrows(PedidoInvalidoException.class, () -> calculoFreteService.calcular(pedido));
     }

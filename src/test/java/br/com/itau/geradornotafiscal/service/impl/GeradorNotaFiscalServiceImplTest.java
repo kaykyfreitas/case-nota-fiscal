@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -110,5 +111,62 @@ class GeradorNotaFiscalServiceImplTest {
 
         assertEquals("falha no estoque", erro.getMessage());
         assertTrue(registroInterrompido.get());
+    }
+
+    @Test
+    void devePropagarErroQuandoRequestForInterrompidoNoJoin() {
+        Pedido pedido = pedidoBase();
+        when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
+        when(calculoFrete.calcular(pedido)).thenReturn(0.0);
+        doAnswer(invocation -> {
+            Thread.sleep(5_000);
+            return null;
+        }).when(estoqueService).enviarNotaFiscalParaBaixaEstoque(any());
+
+        Thread.currentThread().interrupt();
+        try {
+            IllegalStateException erro = assertThrows(IllegalStateException.class,
+                    () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+            assertEquals("Geracao da nota fiscal interrompida", erro.getMessage());
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
+    }
+
+    @Test
+    void deveRelancarErrorDaIntegracao() {
+        Pedido pedido = pedidoBase();
+        when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
+        when(calculoFrete.calcular(pedido)).thenReturn(0.0);
+        doAnswer(invocation -> {
+            throw new AssertionError("falha fatal");
+        }).when(estoqueService).enviarNotaFiscalParaBaixaEstoque(any());
+
+        AssertionError erro = assertThrows(AssertionError.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+        assertEquals("falha fatal", erro.getMessage());
+    }
+
+    @Test
+    void deveEmbrulharCausaChecadaDaIntegracao() {
+        Pedido pedido = pedidoBase();
+        when(calculoAliquota.calcular(pedido)).thenReturn(List.of());
+        when(calculoFrete.calcular(pedido)).thenReturn(0.0);
+        doAnswer(invocation -> {
+            throw new java.io.IOException("timeout");
+        }).when(estoqueService).enviarNotaFiscalParaBaixaEstoque(any());
+
+        RuntimeException erro = assertThrows(RuntimeException.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+        assertEquals("Falha ao integrar nota fiscal", erro.getMessage());
+        assertInstanceOf(java.io.IOException.class, erro.getCause());
+    }
+
+    private Pedido pedidoBase() {
+        Pedido pedido = new Pedido();
+        pedido.setValorTotalItens(400);
+        pedido.setDestinatario(new Destinatario());
+        return pedido;
     }
 }
