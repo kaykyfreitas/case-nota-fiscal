@@ -1,7 +1,9 @@
 package br.com.itau.geradornotafiscal.service.impl;
 
 import br.com.itau.geradornotafiscal.domain.aliquota.CalculoAliquota;
+import br.com.itau.geradornotafiscal.domain.exception.PedidoInvalidoException;
 import br.com.itau.geradornotafiscal.domain.frete.CalculoFrete;
+import br.com.itau.geradornotafiscal.model.Item;
 import br.com.itau.geradornotafiscal.model.NotaFiscal;
 import br.com.itau.geradornotafiscal.model.Pedido;
 import br.com.itau.geradornotafiscal.service.EntregaService;
@@ -12,6 +14,8 @@ import br.com.itau.geradornotafiscal.service.RegistroService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -34,6 +38,8 @@ public class GeradorNotaFiscalServiceImpl implements GeradorNotaFiscalService {
 
 	@Override
 	public NotaFiscal gerarNotaFiscal(Pedido pedido) {
+		conferirValorTotalItens(pedido);
+
 		NotaFiscal notaFiscal = NotaFiscal.builder()
 				.idNotaFiscal(UUID.randomUUID().toString())
 				.data(LocalDateTime.now())
@@ -45,6 +51,36 @@ public class GeradorNotaFiscalServiceImpl implements GeradorNotaFiscalService {
 
 		integrarNotaFiscal(notaFiscal);
 		return notaFiscal;
+	}
+
+	private void conferirValorTotalItens(Pedido pedido) {
+		if (pedido == null) {
+			throw new PedidoInvalidoException("Pedido sem valor_total_itens");
+		}
+
+		BigDecimal declarado = pedido.getValorTotalItens();
+		if (declarado == null) {
+			throw new PedidoInvalidoException("Pedido sem valor_total_itens");
+		}
+
+		List<Item> itens = pedido.getItens();
+		if (itens == null || itens.isEmpty()) {
+			throw new PedidoInvalidoException("Pedido sem itens");
+		}
+
+		BigDecimal soma = BigDecimal.ZERO;
+		for (Item item : itens) {
+			if (item == null || item.getValorUnitario() == null) {
+				throw new PedidoInvalidoException("Item sem valor_unitario");
+			}
+			soma = soma.add(item.getValorUnitario()
+					.multiply(BigDecimal.valueOf(item.getQuantidade()))
+					.setScale(2, RoundingMode.HALF_UP));
+		}
+
+		if (declarado.compareTo(soma) != 0) {
+			throw new PedidoInvalidoException("valor_total_itens nao confere com a soma dos itens");
+		}
 	}
 
 	private void integrarNotaFiscal(NotaFiscal notaFiscal) {

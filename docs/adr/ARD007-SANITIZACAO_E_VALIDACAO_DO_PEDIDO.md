@@ -16,7 +16,7 @@ Na entrada HTTP, nesta ordem:
 
 Erros de contrato → **400** Problem Details (RFC 9457) com `errors[]`. O gerador **não** é chamado.
 
-Falha de regra no domínio → **422**. O payload já passou no `@Valid`; o controller chama `gerarNotaFiscal` e a exception de domínio (`RegimeTributacaoNaoSuportadoException`, `PedidoInvalidoException`) é traduzida pelo Advice. Exemplo típico: PJ `OUTROS` (a validação HTTP exige regime, mas aceita `OUTROS`; quem recusa é o cálculo de alíquota).
+Falha de regra no domínio → **422**. O payload já passou no `@Valid`; o controller chama `gerarNotaFiscal` e a exception de domínio (`RegimeTributacaoNaoSuportadoException`, `PedidoInvalidoException`) é traduzida pelo Advice. Exemplos: PJ `OUTROS` (recusa no cálculo de alíquota); `valor_total_itens` diferente da soma `unitário × quantidade` das linhas — conferência no **gerador**, antes de frete e alíquota.
 
 Constraints estruturais ficam no model; o advice fica em `adapter.in.web`.
 

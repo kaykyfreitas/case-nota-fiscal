@@ -1,0 +1,49 @@
+meta {
+  name: Total divergente das linhas
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/api/pedido/gerarNotaFiscal
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+assert {
+  res.status: eq 422
+}
+
+tests {
+  test("rejeita valor_total_itens que nao fecha com as linhas", function() {
+    const body = res.getBody();
+    expect(body.codigo).to.equal("PEDIDO_INVALIDO");
+    expect(body.detail).to.equal("valor_total_itens nao confere com a soma dos itens");
+  });
+}
+
+body:json {
+  {
+    "id_pedido": 1,
+    "data": "2022-05-01",
+    "valor_total_itens": 400.0,
+    "valor_frete": 10.0,
+    "itens": [
+      {
+        "id_item": 1,
+        "descricao": "Teclado USB",
+        "valor_unitario": 50,
+        "quantidade": 2
+      }
+    ],
+    "destinatario": {
+      "nome": "John Doe",
+      "tipo_pessoa": "FISICA",
+      "enderecos": [{ "finalidade": "ENTREGA", "regiao": "SUDESTE" }]
+    }
+  }
+}

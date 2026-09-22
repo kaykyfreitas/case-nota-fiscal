@@ -1,8 +1,10 @@
 package br.com.itau.geradornotafiscal.service.impl;
 
 import br.com.itau.geradornotafiscal.domain.aliquota.CalculoAliquota;
+import br.com.itau.geradornotafiscal.domain.exception.PedidoInvalidoException;
 import br.com.itau.geradornotafiscal.domain.frete.CalculoFrete;
 import br.com.itau.geradornotafiscal.model.Destinatario;
+import br.com.itau.geradornotafiscal.model.Item;
 import br.com.itau.geradornotafiscal.model.ItemNotaFiscal;
 import br.com.itau.geradornotafiscal.model.NotaFiscal;
 import br.com.itau.geradornotafiscal.model.Pedido;
@@ -18,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,9 +63,7 @@ class GeradorNotaFiscalServiceImplTest {
 
     @Test
     void deveMontarNotaComAliquotaFreteEDispararIntegracoes() {
-        Pedido pedido = new Pedido();
-        pedido.setValorTotalItens(new BigDecimal("400"));
-        pedido.setDestinatario(new Destinatario());
+        Pedido pedido = pedidoBase();
 
         List<ItemNotaFiscal> itensCalculados = List.of(
                 ItemNotaFiscal.builder().valorTributoItem(new BigDecimal("12")).build()
@@ -82,9 +84,7 @@ class GeradorNotaFiscalServiceImplTest {
 
     @Test
     void deveCancelarIntegracoesPendentesQuandoUmaFalhar() {
-        Pedido pedido = new Pedido();
-        pedido.setValorTotalItens(new BigDecimal("400"));
-        pedido.setDestinatario(new Destinatario());
+        Pedido pedido = pedidoBase();
 
         CountDownLatch registroEmAndamento = new CountDownLatch(1);
         AtomicBoolean registroInterrompido = new AtomicBoolean();
@@ -124,15 +124,17 @@ class GeradorNotaFiscalServiceImplTest {
             return null;
         }).when(estoqueService).enviarNotaFiscalParaBaixaEstoque(any());
 
-        Thread.currentThread().interrupt();
-        try {
-            IllegalStateException erro = assertThrows(IllegalStateException.class,
-                    () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
-            assertEquals("Geracao da nota fiscal interrompida", erro.getMessage());
-            assertTrue(Thread.currentThread().isInterrupted());
-        } finally {
-            Thread.interrupted();
-        }
+        assertTimeoutPreemptively(Duration.ofSeconds(2), () -> {
+            Thread.currentThread().interrupt();
+            try {
+                IllegalStateException erro = assertThrows(IllegalStateException.class,
+                        () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+                assertEquals("Geracao da nota fiscal interrompida", erro.getMessage());
+                assertTrue(Thread.currentThread().isInterrupted());
+            } finally {
+                Thread.interrupted();
+            }
+        });
     }
 
     @Test
@@ -164,9 +166,101 @@ class GeradorNotaFiscalServiceImplTest {
         assertInstanceOf(java.io.IOException.class, erro.getCause());
     }
 
+    @Test
+    void deveFalharQuandoValorTotalItensNaoConferirComASomaDasLinhas() {
+        Pedido pedido = pedidoComItem("400", "100", 1);
+
+        PedidoInvalidoException erro = assertThrows(
+                PedidoInvalidoException.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+
+        assertEquals("valor_total_itens nao confere com a soma dos itens", erro.getMessage());
+        verify(calculoFrete, never()).calcular(any());
+        verify(calculoAliquota, never()).calcular(any());
+    }
+
+    @Test
+    void deveFalharQuandoValorTotalItensForNulo() {
+        Pedido pedido = pedidoBase();
+        pedido.setValorTotalItens(null);
+
+        PedidoInvalidoException erro = assertThrows(
+                PedidoInvalidoException.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+        assertEquals("Pedido sem valor_total_itens", erro.getMessage());
+        verify(calculoFrete, never()).calcular(any());
+        verify(calculoAliquota, never()).calcular(any());
+    }
+
+    @Test
+    void deveFalharQuandoPedidoForNulo() {
+        PedidoInvalidoException erro = assertThrows(
+                PedidoInvalidoException.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(null));
+        assertEquals("Pedido sem valor_total_itens", erro.getMessage());
+    }
+
+    @Test
+    void deveFalharQuandoPedidoNaoTiverItens() {
+        Pedido pedido = pedidoBase();
+        pedido.setItens(List.of());
+
+        PedidoInvalidoException erro = assertThrows(
+                PedidoInvalidoException.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+        assertEquals("Pedido sem itens", erro.getMessage());
+        verify(calculoFrete, never()).calcular(any());
+    }
+
+    @Test
+    void deveFalharQuandoListaDeItensForNula() {
+        Pedido pedido = pedidoBase();
+        pedido.setItens(null);
+
+        PedidoInvalidoException erro = assertThrows(
+                PedidoInvalidoException.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+        assertEquals("Pedido sem itens", erro.getMessage());
+        verify(calculoFrete, never()).calcular(any());
+    }
+
+    @Test
+    void deveFalharQuandoItemNaoTiverValorUnitario() {
+        Item item = new Item();
+        item.setQuantidade(1);
+        Pedido pedido = pedidoBase();
+        pedido.setItens(List.of(item));
+
+        PedidoInvalidoException erro = assertThrows(
+                PedidoInvalidoException.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+        assertEquals("Item sem valor_unitario", erro.getMessage());
+        verify(calculoFrete, never()).calcular(any());
+    }
+
+    @Test
+    void deveFalharQuandoItemDaListaForNulo() {
+        Pedido pedido = pedidoBase();
+        pedido.setItens(Arrays.asList((Item) null));
+
+        PedidoInvalidoException erro = assertThrows(
+                PedidoInvalidoException.class,
+                () -> geradorNotaFiscalService.gerarNotaFiscal(pedido));
+        assertEquals("Item sem valor_unitario", erro.getMessage());
+        verify(calculoFrete, never()).calcular(any());
+    }
+
     private Pedido pedidoBase() {
+        return pedidoComItem("400", "100", 4);
+    }
+
+    private Pedido pedidoComItem(String valorTotal, String valorUnitario, int quantidade) {
         Pedido pedido = new Pedido();
-        pedido.setValorTotalItens(new BigDecimal("400"));
+        pedido.setValorTotalItens(new BigDecimal(valorTotal));
+        Item item = new Item();
+        item.setValorUnitario(new BigDecimal(valorUnitario));
+        item.setQuantidade(quantidade);
+        pedido.setItens(List.of(item));
         pedido.setDestinatario(new Destinatario());
         return pedido;
     }
