@@ -83,6 +83,8 @@ public class PedidoSanitizacaoAdvice extends RequestBodyAdviceAdapter {
             endereco.setCep(limpar(endereco.getCep()));
             endereco.setLogradouro(limpar(endereco.getLogradouro()));
             endereco.setNumero(limpar(endereco.getNumero()));
+            endereco.setBairro(limpar(endereco.getBairro()));
+            endereco.setCidade(limpar(endereco.getCidade()));
             endereco.setEstado(limpar(endereco.getEstado()));
             endereco.setComplemento(limpar(endereco.getComplemento()));
         }

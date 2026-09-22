@@ -209,6 +209,8 @@ class GeradorNFControllerTest {
                                       "finalidade": "ENTREGA",
                                       "regiao": "SUDESTE",
                                       "cep": "  03105003  ",
+                                      "bairro": "  Mooca  ",
+                                      "cidade": "  Sao Paulo  ",
                                       "complemento": "   "
                                     }]
                                   }
@@ -222,6 +224,8 @@ class GeradorNFControllerTest {
         assertEquals("John Doe", sanitizado.getDestinatario().getNome());
         assertEquals("Teclado USB", sanitizado.getItens().get(0).getDescricao());
         assertEquals("03105003", sanitizado.getDestinatario().getEnderecos().get(0).getCep());
+        assertEquals("Mooca", sanitizado.getDestinatario().getEnderecos().get(0).getBairro());
+        assertEquals("Sao Paulo", sanitizado.getDestinatario().getEnderecos().get(0).getCidade());
         assertNull(sanitizado.getDestinatario().getEnderecos().get(0).getComplemento());
     }
 

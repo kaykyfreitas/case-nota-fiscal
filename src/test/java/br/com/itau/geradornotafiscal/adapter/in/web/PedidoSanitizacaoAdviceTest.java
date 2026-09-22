@@ -48,6 +48,8 @@ class PedidoSanitizacaoAdviceTest {
         endereco.setCep("  03105003  ");
         endereco.setLogradouro("  Av do estado  ");
         endereco.setNumero("  5533  ");
+        endereco.setBairro("  Mooca  ");
+        endereco.setCidade("  Sao Paulo  ");
         endereco.setEstado("  SP  ");
         endereco.setComplemento("   ");
 
@@ -69,6 +71,8 @@ class PedidoSanitizacaoAdviceTest {
         assertEquals("03105003", endereco.getCep());
         assertEquals("Av do estado", endereco.getLogradouro());
         assertEquals("5533", endereco.getNumero());
+        assertEquals("Mooca", endereco.getBairro());
+        assertEquals("Sao Paulo", endereco.getCidade());
         assertEquals("SP", endereco.getEstado());
         assertNull(endereco.getComplemento());
     }
