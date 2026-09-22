@@ -10,7 +10,7 @@ Mesmo com as integrações em paralelo, a thread que atende o HTTP fica bloquead
 
 ## Decisão
 
-Em `GeradorNotaFiscalServiceImpl.integrarNotaFiscal`, depois do cálculo de alíquota e frete:
+Em `core.service.impl.GeradorNotaFiscalServiceImpl.integrarNotaFiscal`, depois do cálculo de alíquota e frete:
 
 - `Executors.newVirtualThreadPerTaskExecutor()` por request (`try-with-resources`), uma virtual thread por integração;
 - `ExecutorCompletionService` para inscrever as tasks e esperar na **ordem de conclusão** (`take().get()` tantas vezes quanto o número de `Future`s);

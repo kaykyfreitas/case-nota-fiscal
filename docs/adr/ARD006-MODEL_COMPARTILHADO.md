@@ -1,4 +1,4 @@
-# ADR006 — Model compartilhado na raiz do pacote
+# ADR006 — Model compartilhado no domínio
 
 ## Contexto
 
@@ -8,9 +8,11 @@ Separar DTO HTTP + mapper 1:1 duplicaria o código sem tradução de regra e aum
 
 ## Decisão
 
-Manter as classes em `br.com.itau.geradornotafiscal.model`, fora de `domain` e de `adapter`. HTTP e domínio importam o mesmo pacote. Não há `PedidoRequest` / `NotaFiscalResponse`.
+Manter `Pedido`, `NotaFiscal` e aninhados em `core.domain.model`, fora de `adapter`. HTTP e domínio importam o mesmo pacote. Não há `PedidoRequest` / `NotaFiscalResponse`.
 
-Jackson (`@JsonProperty`) permanece no model. `domain.aliquota` e `domain.frete` não dependem de anotações HTTP, só dos tipos.
+Enums do contrato (`TipoPessoa`, `RegimeTributacaoPJ`, `Regiao`, `Finalidade`, `TipoDocumento`) ficam em `core.domain.enums`; o model só os referencia.
+
+Jackson (`@JsonProperty`) permanece no model. `core.domain.aliquota` e `core.domain.frete` não dependem de anotações HTTP, só dos tipos.
 
 ## Consequências
 

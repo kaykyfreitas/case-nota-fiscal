@@ -1,7 +1,7 @@
 package br.com.itau.geradornotafiscal.adapter.out;
 
-import br.com.itau.geradornotafiscal.model.NotaFiscal;
-import br.com.itau.geradornotafiscal.port.out.EntregaIntegrationPort;
+import br.com.itau.geradornotafiscal.core.domain.model.NotaFiscal;
+import br.com.itau.geradornotafiscal.core.port.out.EntregaIntegrationPort;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -1,6 +1,6 @@
 package br.com.itau.geradornotafiscal.adapter.in.web;
 
-import br.com.itau.geradornotafiscal.model.Pedido;
+import br.com.itau.geradornotafiscal.core.domain.model.Pedido;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.ProblemDetail;

@@ -1,10 +1,10 @@
 package br.com.itau.geradornotafiscal.adapter.in.web;
 
-import br.com.itau.geradornotafiscal.model.Destinatario;
-import br.com.itau.geradornotafiscal.model.Documento;
-import br.com.itau.geradornotafiscal.model.Endereco;
-import br.com.itau.geradornotafiscal.model.Item;
-import br.com.itau.geradornotafiscal.model.Pedido;
+import br.com.itau.geradornotafiscal.core.domain.model.Destinatario;
+import br.com.itau.geradornotafiscal.core.domain.model.Documento;
+import br.com.itau.geradornotafiscal.core.domain.model.Endereco;
+import br.com.itau.geradornotafiscal.core.domain.model.Item;
+import br.com.itau.geradornotafiscal.core.domain.model.Pedido;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpInputMessage;
 import org.springframework.http.converter.HttpMessageConverter;

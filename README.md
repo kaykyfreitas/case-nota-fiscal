@@ -8,14 +8,17 @@ Este repositório é o **case de notas fiscais**. O enunciado original — probl
 flowchart LR
   Cliente -->|POST /api/pedido/gerarNotaFiscal| HTTP
   subgraph JVM
-    HTTP[adapter.in.web] --> Gerador[GeradorNotaFiscalService]
-    Gerador --> Aliquota[dominio.aliquota]
-    Gerador --> Frete[dominio.frete]
+    HTTP[adapter.in.web] --> Gerador[core.service]
+    Gerador --> Aliquota[core.domain.aliquota]
+    Gerador --> Frete[core.domain.frete]
+    Gerador --> Metrics[core.observability]
     Gerador --> VT[virtual threads]
     VT --> Estoque
     VT --> Registro
     VT --> Entrega
     VT --> Financeiro
+    Entrega --> Port[core.port.out]
+    Port --> Out[adapter.out]
   end
   HTTP -->|health / prometheus| Actuator
   Actuator -.->|scrape| Prom[Prometheus]
@@ -113,19 +116,22 @@ O gerador legado concentrava alíquota, frete, `new` das integrações e efeitos
 | Dependências | Interfaces + DI. Só entrega tem Port/Adapter; as outras laterais ainda são `*ServiceImpl` com `sleep`. |
 | Alíquota | Strategy por PF / Simples / Lucro Real / Lucro Presumido. Nova faixa vira classe, não `if` no gerador. |
 | Frete | Fator no enum `Regiao` (conjunto fechado do JSON). Sem endereço de entrega → 422, não frete 0 silencioso. |
-| Model | Classes compartilhadas na raiz do pacote: o contrato JSON *é* o vocabulário do domínio (sem DTO 1:1). |
+| Model | Classes em `core.domain.model`: o contrato JSON *é* o vocabulário do domínio (sem DTO 1:1). |
 | HTTP | Adapter com RFC 9457; sanitização no `RequestBodyAdvice`. |
 | Decisões | ADRs em `docs/adr/` (Docker, TaaC/k6, DI, strategy, frete, model, validação, virtual threads, BigDecimal, observabilidade). |
 | Testes | Pacotes alinhados ao código de produção; gate JaCoCo **95%** linha e branch. |
 
 ```
 adapter.in.web          HTTP, filtro requestId, Problem Details, sanitização
-adapter.out             integração de entrega + observabilidade (métricas, MDC)
-domain.aliquota         strategies + calculadora de linha
-domain.frete            fator por região
-domain.exception        pedido inválido, regime não suportado
-service                 porta de entrada e orquestração + sleeps simulados
-model                   contrato JSON compartilhado
+adapter.out             integração de entrega
+core.port               portas de saída (entrega)
+core.domain.aliquota    strategies + calculadora de linha
+core.domain.enums       TipoPessoa, regime, região, finalidade, documento
+core.domain.frete       fator por região
+core.domain.exception   pedido inválido, regime não suportado
+core.service            porta de entrada e orquestração + sleeps simulados
+core.domain.model       contrato JSON compartilhado
+core.observability      métricas Micrometer e cópia de MDC nas virtual threads
 ```
 
 ---

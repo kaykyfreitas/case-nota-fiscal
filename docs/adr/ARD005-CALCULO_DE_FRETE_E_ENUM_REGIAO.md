@@ -6,8 +6,8 @@ O gerador também escolhia o endereço (`ENTREGA` / `COBRANCA_ENTREGA`) e aplica
 
 ## Decisão
 
-- `CalculoFrete` / `CalculoFreteService` no domínio: resolve a região de entrega e aplica `valorFrete * fator`.
-- O fator fica no enum `Regiao` (conjunto fechado do contrato JSON: Norte 1.08, Nordeste 1.085, Centro-Oeste 1.07, Sudeste 1.048, Sul 1.06).
+- `CalculoFrete` / `CalculoFreteService` em `core.domain.frete`: resolve a região de entrega e aplica `valorFrete * fator`.
+- O fator fica no enum `Regiao` (`core.domain.enums`; conjunto fechado do contrato JSON: Norte 1.08, Nordeste 1.085, Centro-Oeste 1.07, Sudeste 1.048, Sul 1.06).
 - Sem endereço de entrega com região: `PedidoInvalidoException` (não mais frete 0 silencioso).
 
 O nome do enum no JSON não muda; o construtor extra não quebra desserialização por nome.
